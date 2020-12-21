@@ -42,7 +42,8 @@ class Vocab:
 
         def id_to_word(self, word_id):
                 if word_id not in self.id2word:
-                        raise ValueError('Id not found in vocab: %d' % word_id)
+                        #raise ValueError('Id not found in vocab: %d' % word_id)
+                        return '[UNK]'
                 return self.id2word[word_id]
 
         def size(self):

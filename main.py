@@ -42,6 +42,8 @@ def main():
 
         parser.add_argument("--vocab_path", help="Vocab path")
 
+        parser.add_argument("--test_dir", help="Test file input")
+
         
         args = parser.parse_args()
         params = vars(args)

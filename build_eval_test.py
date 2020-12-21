@@ -41,6 +41,7 @@ def train(params):
 
         tf.compat.v1.logging.info("Creating the batcher ...")
         b = entitybatcher(params["data_dir"], params["vocab_path"], params)
+        testb = entitybatcher(params["test_dir"], params["vocab_path"],params)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
         logdir = "{}/logdir".format(params["model_dir"])
@@ -55,7 +56,7 @@ def train(params):
                 print("Initializing from scratch.")
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, params, ckpt, ckpt_manager)
+        train_model(transformer, b, testb, params, ckpt, ckpt_manager)
         
 
 
