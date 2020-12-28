@@ -63,7 +63,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
                             answer = ' '.join([vocab.id_to_word(x) for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
                             print("target: ", target)
-                            print("answer: ", answer)
+                            print("answer: ", answer,'\n')
                             totalfuzz += fuzz.ratio(target,answer)
                         break
                             #test_loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')

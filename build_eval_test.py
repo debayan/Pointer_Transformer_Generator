@@ -72,5 +72,5 @@ def test(params):
         ckpt = tf.train.Checkpoint(step=tf.Variable(0), transformer=model)
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
-        pred = predict(entitybatcher(params["data_dir"], params["vocab_path"], params), params, model)
+        pred = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
         yield next(pred)
