@@ -10,7 +10,7 @@ ask
 select
 que
 ?sbj_label
-LIMIT
+limit
 jai
 mai
 ?sbj
@@ -30,12 +30,12 @@ lcase
 order
 la
 <
-?X
-ASC
+?x
+asc
 en
 ?ans_1
 contains
-AS
+as
 ,
 ?x
 strstarts
