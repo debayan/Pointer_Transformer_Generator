@@ -2,7 +2,7 @@ import tensorflow as tf
 from utils import create_masks
 import time
 import sys
-from data_helper import Vocab
+from data_helper import Data_Helper, Vocab
 import time
 from fuzzywuzzy import fuzz
 
@@ -56,16 +56,19 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         testlabels = testbatch[1]
                         test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["enc_input"], testlabels["dec_input"])
                         testoutput, test_attn_weights = model(testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], testlabels["dec_input"], training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
-                        for answer,target in zip(testoutput,testlabels["dec_target"]):
-                            qcount += 1
-#                        #print("target: ",[x for x in list(target.numpy()) if x != 1 and x!=3])
-#                        #print("answer: ",[x for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
-                            target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
-                            answer = ' '.join([vocab.id_to_word(x) for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+                        for answer,target,oov in zip(testoutput,testlabels["dec_target"],testfeatures["question_oovs"]):
+                            
+                            qcount += 1                         
+                            print("ID target: ",[x for x in list(target.numpy()) if x != 1 and x!=3])
+                            print("ID answer: ",[x for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+                            target = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
+                            answer = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
                             print("target: ", target)
+                            #print("target extended: ",target_extended)
                             print("answer: ", answer,'\n')
                             totalfuzz += fuzz.ratio(target,answer)
-                        break
+                        if testidx > 3:
+                            break
                             #test_loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
                             #testloss = loss_function(test_loss_object, testlabels["dec_target"],testoutput)
                         #print("val loss = ",float(testloss))

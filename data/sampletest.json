@@ -1,0 +1,8 @@
+[{
+        "intermediate_sparql": "SELECT DISTINCT ?sbj ?sbj_label WHERE { ?sbj @@pred@@ @@ent@@ . ?sbj rdfs:label ?sbj_label . FILTER ( CONTAINS ( lcase ( ?sbj_label ) , roman ) ) . FILTER ( lang ( ?sbj_label ) = en ) } LIMIT 25",
+        "paraphrased_question": "which is the institution that contains the word roman in their name",
+        "question": "WHICH IS THE INSTITUTION THAT CONTAINS THE WORD ROMAN IN THEIR NAME",
+        "sparql_wikidata": "SELECT DISTINCT ?sbj ?sbj_label WHERE { ?sbj wdt:P31 wd:Q178706 . ?sbj rdfs:label ?sbj_label . FILTER(CONTAINS(lcase(?sbj_label), 'roman')) . FILTER (lang(?sbj_label) = 'en') } LIMIT 25 ",
+        "sparqlclean": "SELECT DISTINCT ?sbj ?sbj_label WHERE  {  ?sbj wdt:P31 wd:Q178706 . ?sbj rdfs:label ?sbj_label . FILTER ( CONTAINS ( lcase ( ?sbj_label ) , 'roman' )  )  . FILTER  ( lang ( ?sbj_label )  = 'en' )   }  LIMIT 25 ",
+        "uid": 23857
+    }]

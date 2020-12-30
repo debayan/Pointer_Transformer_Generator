@@ -67,8 +67,7 @@ def main():
                 train( params)
         elif params["eval"]:
                 print("test")
-                for res in test(params):
-                    print(res)
+                test(params)
         elif not params["training"]:
                 pass
 

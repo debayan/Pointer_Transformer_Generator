@@ -19,14 +19,17 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
 
-                question_words = question.split()[ : max_enc_len]
+                question_words_ = question.replace('?','').split()[ : max_enc_len] #handle cases like "who is older than 25?"  Here 25? fails to convert to int
+                question_words = [x.lower() for x in question_words_]
+                
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
 
                 #intsparql_sentences = [intermediate_sparql]
                 #abstract = ' '.join(abstract_sentences)
-                intsparql_words = intermediate_sparql.split()
+                intsparql_words_ = intermediate_sparql.replace(","," , ").split()
+                intsparql_words = [x.lower() for x in intsparql_words_]
                 intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                 intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
                 dec_input, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids, max_dec_len, start_decoding, stop_decoding)
