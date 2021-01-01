@@ -67,8 +67,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             #print("target extended: ",target_extended)
                             print("answer: ", answer,'\n')
                             totalfuzz += fuzz.ratio(target,answer)
-                        if testidx > 3:
-                            break
+                        break
                             #test_loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
                             #testloss = loss_function(test_loss_object, testlabels["dec_target"],testoutput)
                         #print("val loss = ",float(testloss))

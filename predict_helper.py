@@ -22,11 +22,13 @@ def predict(featuress, params, model):
     #print("extended input: ",features["extended_enc_input"])
     #print("enc_input: ",features["enc_input"])
     #print("dec_input", labels["dec_input"])
-    for answer,target in zip(predictions,labels["dec_target"]):
+    for answer,target,uid,question in zip(predictions,labels["dec_target"],features["uid"],features["question"]):
       target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
       answer = ' '.join([vocab.id_to_word(x) for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
       qcount += 1
       totalfuzz += fuzz.ratio(target.lower(), answer.lower())
+      print("uid: ",int(uid.numpy()))
+      print("question: ", question.numpy().decode('utf-8'))
       print("target: ", target)
       print("answer: ", answer,'\n')
       print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))

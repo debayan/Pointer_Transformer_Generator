@@ -30,7 +30,6 @@ lcase
 order
 la
 <
-?x
 asc
 en
 ?ans_1
