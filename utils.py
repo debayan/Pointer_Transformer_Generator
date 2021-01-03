@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 import numpy as np
-
+import sys
 
 def get_angles(pos, i, d_model):
 	angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(d_model))
@@ -41,7 +41,7 @@ def create_look_ahead_mask(size):
 def create_masks(inp, tar):
 	# Encoder padding mask
 	enc_padding_mask = create_padding_mask(inp)
-
+	
 	# Used in the 2nd attention block in the decoder.
 	# This padding mask is used to mask the encoder outputs.
 	dec_padding_mask = create_padding_mask(inp)

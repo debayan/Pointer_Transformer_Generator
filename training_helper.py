@@ -31,44 +31,50 @@ def loss_function(loss_object, real, pred):
 
         return tf.reduce_mean(loss_)
 
-@tf.function(experimental_relax_shapes=True)
+
 def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher):
-  
+        
         enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["old_enc_input"], labels["dec_input"])
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
-                output, attn_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
+                questions = [q.numpy().decode('utf-8') for q in features["question"]]
+                output, attn_weights = model(questions,features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
                                                                         enc_padding_mask=enc_padding_mask, 
                                                                         look_ahead_mask=combined_mask,
                                                                         dec_padding_mask=dec_padding_mask)
-                #print("input: ",features)
-                #print("target: ",labels["dec_target"])
-                #print("target shape: ", labels["dec_target"].shape)
-                #print("output: ",output)
-                #print("output shape: ",output.shape)
+                if batchcount%100 == 0 and batchcount > 1:
+                    vocab = Vocab(params['vocab_path'], params['vocab_size'])                                                  
+                    for answer,target in zip(output,labels["dec_target"]):
+                        target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
+                        print("target: ", target)
+                        answer = ' '.join([vocab.id_to_word(x)  for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+                        print("answer: ", answer,'\n')
                 loss = loss_function(loss_object, labels["dec_target"], output)
                 qcount = 0
                 totalfuzz = 0.0
-                if batchcount%100 == 0 and batchcount > 1:
-                    vocab = Vocab(params['vocab_path'], params['vocab_size'])
-                    output = tf.tile([[2]], [params["batch_size"], 1]) # 2 = start_decoding
-                    for testidx,testbatch in enumerate(testbatcher):
-                        testfeatures = testbatch[0]
-                        testlabels = testbatch[1]
-                        test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["old_enc_input"], output)
-                        testoutput, test_attn_weights = model(testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
-                        for answer,target,oov in zip(testoutput,testlabels["dec_target"],testfeatures["question_oovs"]):
-                            
-                            qcount += 1                         
-                            print("ID target: ",[x for x in list(target.numpy()) if x != 1 and x!=3])
-                            print("ID answer: ",[x for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
-                            target = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
-                            answer = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
-                            print("target: ", target)
-                           #print("target extended: ",target_extended)
-                            print("answer: ", answer,'\n')
-                            totalfuzz += fuzz.ratio(target,answer)
-                        break
+#                if batchcount%100 == 0 and batchcount > 1:
+#                    vocab = Vocab(params['vocab_path'], params['vocab_size'])
+#                    output = tf.tile([[2]], [params["batch_size"], 1]) # 2 = start_decoding
+#                    for testidx,testbatch in enumerate(testbatcher):
+#                        testfeatures = testbatch[0]
+#                        testlabels = testbatch[1]
+#                        test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["old_enc_input"], output)
+#                        testquestions = [q.numpy().decode('utf-8') for q in testfeatures["question"]]
+#                        testoutput, test_attn_weights = model(testquestions,testfeatures["old_enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
+#                        for answer,target,oov in zip(testoutput,testlabels["dec_target"],testfeatures["question_oovs"]):
+#                            
+#                            qcount += 1
+#                            #print("ID_ target: ",list(target.numpy()))
+#                            #print("ID_ answer: ",list(tf.math.argmax(answer, axis=1).numpy()))                         
+#                            print("ID target: ",[x for x in list(target.numpy()) if x != 1 and x!=3])
+#                            print("ID answer: ",[x for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+#                            target = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
+#                            answer = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+#                            print("target: ", target)
+#                           #print("target extended: ",target_extended)
+#                            print("answer: ", answer,'\n')
+#                            totalfuzz += fuzz.ratio(target,answer)
+#                        break
                             #test_loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
                             #testloss = loss_function(test_loss_object, testlabels["dec_target"],testoutput)
                         #print("val loss = ",float(testloss))
@@ -99,12 +105,12 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                 valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
                                 t1 = time.time()
                                 if idx%100 == 0:
-                                    print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
-                                    if valfuzz > bestfuzz:
-                                        bestfuzz = valfuzz
-                                        print("Best val fuzz so far: %f"%(valfuzz/qcount))
-                                        ckpt_manager.save(checkpoint_number=int(ckpt.step))
-                                        print("Saved checkpoint for step {}".format(int(ckpt.step)))
+#                                    print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
+#                                    if valfuzz > bestfuzz:
+#                                        bestfuzz = valfuzz
+#                                        print("Best val fuzz so far: %f"%(valfuzz/qcount))
+                                    ckpt_manager.save(checkpoint_number=int(ckpt.step))
+                                    print("Saved checkpoint for step {}".format(int(ckpt.step)))
                                     print("epoch {} step {}, time : {}, loss: {}".format(epoch,int(ckpt.step), t1-t0, train_loss_metric.result()))
                                 #if int(ckpt.step) % params["checkpoints_save_steps"] ==0 :
                                 #       ckpt_manager.save(checkpoint_number=int(ckpt.step))

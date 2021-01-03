@@ -10,20 +10,18 @@ def predict(featuress, params, model):
   totalfuzz = 0.0
   qcount = 0
   for features_ in featuress:
-
     features = features_[0]
     labels = features_[1]
-    enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input"], output)
+    questions = [q.numpy().decode('utf-8') for q in features["question"]]
+    enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["old_enc_input"], output)
     # predictions.shape == (batch_size, seq_len, vocab_size)
-
-    predictions, attention_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
+    predictions, attention_weights = model(questions,features["old_enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
                              enc_padding_mask=enc_padding_mask, 
                              look_ahead_mask=combined_mask,
                              dec_padding_mask=dec_padding_mask)
-    #print("extended input: ",features["extended_enc_input"])
-    #print("enc_input: ",features["enc_input"])
-    #print("dec_input", labels["dec_input"])
+   
     for answer,target,uid,question in zip(predictions,labels["dec_target"],features["uid"],features["question"]):
+      print("answer: ", list(tf.math.argmax(answer, axis=1).numpy()))
       target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
       answer = ' '.join([vocab.id_to_word(x) for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
       qcount += 1

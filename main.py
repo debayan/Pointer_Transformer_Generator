@@ -67,9 +67,10 @@ def main():
         #outputs = encoder(encoder_inputs)
         #pooled_output = outputs["pooled_output"]      # [batch_size, 768].
         #sequence_output = outputs["sequence_output"]
-
+        #tf.compat.v1.disable_eager_execution()
         if params["training"]:
                 train( params)
+                
         elif params["eval"]:
                 print("test")
                 test(params)

@@ -7,12 +7,9 @@ import sys
 from data_helper import Vocab, Data_Helper
 
 
+
 def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
-
         vocab = Vocab(vocab_path, vocab_size)
-        bertpreprocessor = hub.load("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/2")
-        bertencoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3",trainable=False)
-
         d = json.loads(open(filename).read())
 
         for item in d:
@@ -24,12 +21,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
 
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
-
+                 
                 question_words = question.split()[ : max_enc_len]
-                #get BERT encodings for question
-                question_bert_tokens = bertpreprocessor([question])
-                question_bert_outputs = bertencoder(question_bert_tokens)
-                
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
@@ -41,8 +34,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 dec_input, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids, max_dec_len, start_decoding, stop_decoding)
                 _, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
                 dec_len = len(dec_input)
-               
-                bert_enc_input = question_bert_outputs['sequence_output'][0][:len(question_words)]
+         
+                bert_enc_input = tf.random.uniform(shape=[128,768])#question_bert_outputs['sequence_output'][0]#[:len(question_words)]
                 output = {
                         "uid":uid,
                         "enc_len":enc_len,
@@ -57,12 +50,9 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         "intermediate_sparql" : intermediate_sparql
                 }
 
-
                 yield output
 
-
 def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, training):
-
         dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, training],
                                                                                         output_types = {
                                                                                                 "uid":tf.int32,
@@ -79,7 +69,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                         }, output_shapes={
                                                                                                 "uid": [],
                                                                                                 "enc_len":[],
-                                                                                                "enc_input" : [None,768],
+                                                                                                "enc_input" : [128,768],
                                                                                                 "old_enc_input":[None],
                                                                                                 "enc_input_extend_vocab"  : [None],
                                                                                                 "question_oovs" : [None],
@@ -90,7 +80,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "intermediate_sparql" : []
                                                                                         })
         dataset = dataset.padded_batch(batch_size, padded_shapes=({"enc_len":[],
-                                                                                                "enc_input" : [None,768],
+                                                                                                "enc_input" : [128,768],
                                                                                                 "old_enc_input": [None],
                                                                                                 "uid": [],
                                                                                                 "enc_input_extend_vocab"  : [None],
