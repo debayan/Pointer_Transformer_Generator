@@ -1,6 +1,4 @@
 import tensorflow as tf
-import tensorflow_text as text
-import tensorflow_hub as hub
 import glob
 import json
 import sys
@@ -35,11 +33,10 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 _, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
                 dec_len = len(dec_input)
          
-                bert_enc_input = tf.random.uniform(shape=[128,768])#question_bert_outputs['sequence_output'][0]#[:len(question_words)]
                 output = {
                         "uid":uid,
                         "enc_len":enc_len,
-                        "enc_input" : bert_enc_input,
+                        "enc_input" : enc_input,
                         "old_enc_input": enc_input,
                         "enc_input_extend_vocab"  : enc_input_extend_vocab,
                         "question_oovs" : question_oovs,
@@ -57,7 +54,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                         output_types = {
                                                                                                 "uid":tf.int32,
                                                                                                 "enc_len":tf.int32,
-                                                                                                "enc_input" : tf.float32,
+                                                                                                "enc_input" : tf.int32,
                                                                                                 "old_enc_input": tf.int32,
                                                                                                 "enc_input_extend_vocab"  : tf.int32,
                                                                                                 "question_oovs" : tf.string,
@@ -69,7 +66,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                         }, output_shapes={
                                                                                                 "uid": [],
                                                                                                 "enc_len":[],
-                                                                                                "enc_input" : [128,768],
+                                                                                                "enc_input" : [None],
                                                                                                 "old_enc_input":[None],
                                                                                                 "enc_input_extend_vocab"  : [None],
                                                                                                 "question_oovs" : [None],
@@ -80,7 +77,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "intermediate_sparql" : []
                                                                                         })
         dataset = dataset.padded_batch(batch_size, padded_shapes=({"enc_len":[],
-                                                                                                "enc_input" : [128,768],
+                                                                                                "enc_input" : [None],
                                                                                                 "old_enc_input": [None],
                                                                                                 "uid": [],
                                                                                                 "enc_input_extend_vocab"  : [None],
@@ -93,7 +90,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 }),
                                                                                         padding_values={"enc_len":-1,
                                                                                                 "uid": -1,
-                                                                                                "enc_input" : -1.0,
+                                                                                                "enc_input" : -1,
                                                                                                 "old_enc_input":-1,
                                                                                                 "enc_input_extend_vocab"  : 1,
                                                                                                 "question_oovs" : b'',

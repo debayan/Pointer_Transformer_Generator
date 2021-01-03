@@ -62,12 +62,7 @@ def main():
         assert os.path.exists(params["data_dir"]), "data_dir doesn't exist"
         assert os.path.isfile(params["vocab_path"]), "vocab_path doesn't exist"
 
-        #text_input = tf.keras.layers.Input(shape=(), dtype=tf.string)
-        #encoder_inputs = preprocessor(text_input) # dict with keys: 'input_mask', 'input_type_ids', 'input_word_ids'
-        #outputs = encoder(encoder_inputs)
-        #pooled_output = outputs["pooled_output"]      # [batch_size, 768].
-        #sequence_output = outputs["sequence_output"]
-        #tf.compat.v1.disable_eager_execution()
+   
         if params["training"]:
                 train( params)
                 

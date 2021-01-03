@@ -109,7 +109,7 @@ class Transformer(tf.keras.Model):
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)
                 
                 dec_output, attention_weights, p_gens = self.decoder(embed_dec, enc_output, training, look_ahead_mask, dec_padding_mask)
-
+                
                 output = self.final_layer(dec_output)  # (batch_size, tar_seq_len, target_vocab_size)
                 output = tf.nn.softmax(output) # (batch_size, tar_seq_len, vocab_size)
                 #output = tf.concat([output, tf.zeros((tf.shape(output)[0], tf.shape(output)[1], max_oov_len))], axis=-1) # (batch_size, targ_seq_len, vocab_size+max_oov_len)
