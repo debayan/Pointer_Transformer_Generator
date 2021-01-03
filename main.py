@@ -1,6 +1,7 @@
 import tensorflow as tf
 import argparse
 from build_eval_test import build_model, train, test
+import logging
 import os
 
 def main():
@@ -8,17 +9,17 @@ def main():
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("--max_enc_len", default=400, help="Encoder input max sequence length", type=int)
+        parser.add_argument("--max_enc_len", default=128, help="Encoder input max sequence length", type=int)
         
-        parser.add_argument("--max_dec_len", default=100, help="Decoder input max sequence length", type=int)
+        parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
         parser.add_argument("--batch_size", default=16, help="batch size", type=int)
         
-        parser.add_argument("--vocab_size", default=50000, help="Vocabulary size", type=int)
+        parser.add_argument("--vocab_size", default=128, help="Vocabulary size", type=int)
         
         parser.add_argument("--num_layers", default=3, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=512, help="Model Embedding size", type=int)
+        parser.add_argument("--model_depth", default=768, help="Model Embedding size", type=int)
         
         parser.add_argument("--num_heads", default=8, help="Multi Attention number of heads", type=int)
         
@@ -61,7 +62,11 @@ def main():
         assert os.path.exists(params["data_dir"]), "data_dir doesn't exist"
         assert os.path.isfile(params["vocab_path"]), "vocab_path doesn't exist"
 
-
+        #text_input = tf.keras.layers.Input(shape=(), dtype=tf.string)
+        #encoder_inputs = preprocessor(text_input) # dict with keys: 'input_mask', 'input_type_ids', 'input_word_ids'
+        #outputs = encoder(encoder_inputs)
+        #pooled_output = outputs["pooled_output"]      # [batch_size, 768].
+        #sequence_output = outputs["sequence_output"]
 
         if params["training"]:
                 train( params)

@@ -31,10 +31,10 @@ def loss_function(loss_object, real, pred):
 
         return tf.reduce_mean(loss_)
 
-
+@tf.function(experimental_relax_shapes=True)
 def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher):
   
-        enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input"], labels["dec_input"])
+        enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["old_enc_input"], labels["dec_input"])
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
                 output, attn_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
@@ -42,20 +42,21 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                                                                         look_ahead_mask=combined_mask,
                                                                         dec_padding_mask=dec_padding_mask)
                 #print("input: ",features)
-#                print("target: ",labels["dec_target"])
-#                print("target shape: ", labels["dec_target"].shape)
+                #print("target: ",labels["dec_target"])
+                #print("target shape: ", labels["dec_target"].shape)
                 #print("output: ",output)
-#                print("output shape: ",output.shape)
+                #print("output shape: ",output.shape)
                 loss = loss_function(loss_object, labels["dec_target"], output)
                 qcount = 0
                 totalfuzz = 0.0
                 if batchcount%100 == 0 and batchcount > 1:
                     vocab = Vocab(params['vocab_path'], params['vocab_size'])
+                    output = tf.tile([[2]], [params["batch_size"], 1]) # 2 = start_decoding
                     for testidx,testbatch in enumerate(testbatcher):
                         testfeatures = testbatch[0]
                         testlabels = testbatch[1]
-                        test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["enc_input"], testlabels["dec_input"])
-                        testoutput, test_attn_weights = model(testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], testlabels["dec_input"], training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
+                        test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["old_enc_input"], output)
+                        testoutput, test_attn_weights = model(testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
                         for answer,target,oov in zip(testoutput,testlabels["dec_target"],testfeatures["question_oovs"]):
                             
                             qcount += 1                         
@@ -64,7 +65,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             target = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
                             answer = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
                             print("target: ", target)
-                            #print("target extended: ",target_extended)
+                           #print("target extended: ",target_extended)
                             print("answer: ", answer,'\n')
                             totalfuzz += fuzz.ratio(target,answer)
                         break

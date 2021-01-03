@@ -16,7 +16,6 @@ class Encoder(tf.keras.layers.Layer):
 	    
 	def call(self, x, training, mask):
 		x = self.dropout(x, training=training)
-
 		for i in range(self.num_layers):
 			x = self.enc_layers[i](x, training, mask)
 
@@ -44,10 +43,8 @@ class Decoder(tf.keras.layers.Layer):
 
 		attention_weights = {}
 		out = self.dropout(embed_x, training=training)
-
 		for i in range(self.num_layers):
-			out, block1, block2 = self.dec_layers[i](out, enc_output, training,
-													look_ahead_mask, padding_mask)
+			out, block1, block2 = self.dec_layers[i](out, enc_output, training,look_ahead_mask, padding_mask)
 		
 			attention_weights['decoder_layer{}_block1'.format(i+1)] = block1
 			attention_weights['decoder_layer{}_block2'.format(i+1)] = block2
@@ -96,12 +93,11 @@ class Transformer(tf.keras.Model):
 
 	def call(self, inp, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
 
-		embed_x = self.embedding(inp)
+		embed_x = inp#self.embedding(inp)
 		embed_dec = self.embedding(tar)
-
 		enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
-
 		# dec_output.shape == (batch_size, tar_seq_len, d_model)
+		
 		dec_output, attention_weights, p_gens = self.decoder(embed_dec, enc_output, training, look_ahead_mask, dec_padding_mask)
 
 		output = self.final_layer(dec_output)  # (batch_size, tar_seq_len, target_vocab_size)

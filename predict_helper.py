@@ -13,9 +13,10 @@ def predict(featuress, params, model):
 
     features = features_[0]
     labels = features_[1]
-    enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input"], labels["dec_input"])
+    enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input"], output)
     # predictions.shape == (batch_size, seq_len, vocab_size)
-    predictions, attention_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=False, 
+
+    predictions, attention_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
                              enc_padding_mask=enc_padding_mask, 
                              look_ahead_mask=combined_mask,
                              dec_padding_mask=dec_padding_mask)
