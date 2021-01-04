@@ -29,8 +29,9 @@ def predict(featuress, params, model):
       # as its input.
       output = tf.concat([output, predicted_id], axis=-1)
     for answer,target,uid,question in zip(output,labels["dec_target"],features["uid"],features["question"]):
+      answerclean = answer[1:]
       target_ = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
-      answer_ = ' '.join([vocab.id_to_word(x) for x in list(answer.numpy()) if x != 1 and x!= 3])
+      answer_ = ' '.join([vocab.id_to_word(x) for x in list(answerclean.numpy()) if x != 1 and x!= 3])
       qcount += 1
       totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
       print("uid: ",int(uid.numpy()))
@@ -38,6 +39,5 @@ def predict(featuress, params, model):
       print("target: ", target_)
       print("answer: ", answer_,'\n')
       print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
-    sys.exit(1)
 
   return output, attention_weights

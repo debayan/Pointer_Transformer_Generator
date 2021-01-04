@@ -4,6 +4,8 @@ from build_eval_test import build_model, train, test
 import logging
 import os
 
+
+
 def main():
 
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
@@ -17,7 +19,7 @@ def main():
         
         parser.add_argument("--vocab_size", default=128, help="Vocabulary size", type=int)
         
-        parser.add_argument("--num_layers", default=3, help="Model encoder and decoder number of layers", type=int)
+        parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
         parser.add_argument("--model_depth", default=768, help="Model Embedding size", type=int)
         
@@ -29,11 +31,11 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=230000, help="Max steps for training", type=int)
+        parser.add_argument("--max_steps",default=15000, help="Max steps for training", type=int)
                 
-        parser.add_argument("--save_summary_steps", default=10000, help="Save summaries every N steps", type=int)
+        parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         
-        parser.add_argument("--checkpoints_save_steps", default=10000, help="Save checkpoints every N steps", type=int)
+        parser.add_argument("--checkpoints_save_steps", default=0, help="Save checkpoints every N steps", type=int)
         
         parser.add_argument("--mode", help="training, eval or test options")
 
@@ -64,6 +66,7 @@ def main():
 
    
         if params["training"]:
+              
                 train( params)
                 
         elif params["eval"]:

@@ -13,7 +13,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         for item in d:
                 if not item["question"] or not item["intermediate_sparql"]:
                         continue
-                question = item["question"].replace('?','').replace('{','').replace('}','').lower()
+                question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 intermediate_sparql = item["intermediate_sparql"]
                 uid = item["uid"]
 
