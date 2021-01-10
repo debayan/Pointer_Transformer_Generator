@@ -5,88 +5,7 @@ import sys
 from data_helper import Vocab, Data_Helper
 from transformers import BertTokenizer
 
-def test_example_generator(questions, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
-        vocab = Vocab(vocab_path, vocab_size)
-        for question in questions:
-                if not question:
-                        continue
-                
-                question = question.lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
-                uid = -1
-
-                start_decoding = vocab.word_to_id(vocab.START_DECODING)
-                stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
-                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-                tokens = tokenizer.encode(question)
-                question_words = tokenizer.convert_ids_to_tokens(tokens)[ : max_enc_len]
-                enc_len = len(question_words)
-                enc_input = [vocab.word_to_id(w) for w in question_words]
-                enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
-
-                output = {
-                        "uid":uid,
-                        "enc_len":enc_len,
-                        "enc_input" : enc_input,
-                        "old_enc_input": enc_input,
-                        "enc_input_extend_vocab"  : enc_input_extend_vocab,
-                        "question_oovs" : question_oovs,
-                        "question" : question
-                       }
-
-                yield output
-
-def test_batch_generator(generator, questions, vocab_path, vocab_size, max_enc_len, max_dec_len, batch_size, training):
-        dataset = tf.data.Dataset.from_generator(generator, args = [ questions, vocab_path, vocab_size, max_enc_len, max_dec_len, training],
-                                                                                        output_types = {
-                                                                                                "uid":tf.int32,
-                                                                                                "enc_len":tf.int32,
-                                                                                                "enc_input" : tf.int32,
-                                                                                                "old_enc_input": tf.int32,
-                                                                                                "enc_input_extend_vocab"  : tf.int32,
-                                                                                                "question_oovs" : tf.string,
-                                                                                                "question" : tf.string
-                                                                                               
-                                                                                        }, output_shapes={
-                                                                                                "uid": [],
-                                                                                                "enc_len":[],
-                                                                                                "enc_input" : [None],
-                                                                                                "old_enc_input":[None],
-                                                                                                "enc_input_extend_vocab"  : [None],
-                                                                                                "question_oovs" : [None],
-                                                                                                "question" : []
-                                                                                               
-                                                                                        })
-        dataset = dataset.padded_batch(batch_size, padded_shapes=({"enc_len":[],
-                                                                                                "enc_input" : [None],
-                                                                                                "old_enc_input": [None],
-                                                                                                "uid": [],
-                                                                                                "enc_input_extend_vocab"  : [None],
-                                                                                                "question_oovs" : [None],
-                                                                                                "question" : []
-                                                                                                }),
-                                                                                        padding_values={"enc_len":-1,
-                                                                                                "uid": -1,
-                                                                                                "enc_input" : -1,
-                                                                                                "old_enc_input":-1,
-                                                                                                "enc_input_extend_vocab"  : 1,
-                                                                                                "question_oovs" : b'',
-                                                                                                "question" : b""},
-                                                                                        drop_remainder=True)
-        def update(entry):
-                return {"enc_input" : entry["enc_input"],
-                        "old_enc_input": entry["old_enc_input"],
-                         "uid" : entry["uid"],
-                        "extended_enc_input" : entry["enc_input_extend_vocab"],
-                        "question_oovs" : entry["question_oovs"],
-                        "enc_len" : entry["enc_len"],
-                        "question" : entry["question"],
-                        "max_oov_len" : tf.shape(entry["question_oovs"])[1] }
-
-
-        dataset = dataset.map(update)
-
-        return dataset
-
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 def entitybatcher(data_path, vocab_path, hpm):
   
@@ -106,7 +25,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 intermediate_sparql = item["intermediate_sparql"]
                 uid = item["uid"]
-                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                
                 question = question.lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 tokens = tokenizer.encode(question)
                 
@@ -114,7 +33,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                  
-                question_words = tokenizer.convert_ids_to_tokens(tokens)[ : max_enc_len]
+                question_words = tokenizer.convert_ids_to_tokens(tokens)[1:-1][ : max_enc_len]
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
@@ -222,6 +141,3 @@ def entitybatcher(data_path, vocab_path, hpm):
         dataset = batch_generator(example_generator, data_path, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"], hpm["training"] )
         return dataset
 
-def testbatcher(questions,vocab_path,hpm):
-        dataset = test_batch_generator(test_example_generator,questions, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"], False)
-        return dataset
