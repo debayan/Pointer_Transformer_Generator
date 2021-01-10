@@ -44,16 +44,16 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                
 #                if batchcount%10 == 0 and batchcount > 1:
 #                    vocab = Vocab(params['vocab_path'], params['vocab_size'])                                                  
-#                    for answer,target,question in zip(output,labels["dec_target"],questions):
-#                        target = ' '.join([vocab.id_to_word(x) for x in list(target.numpy()) if x != 1 and x != 3])
-#                        print("question: ",question)
-#                        print("target: ", target)
-#                        answer = ' '.join([vocab.id_to_word(x)  for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
-#                        print("answer: ",  answer,'\n')
+#                    for answer,target,question,oov in zip(output,labels["dec_target"],questions, features['question_oovs']):
+#                        target_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
+#                        print("question train: ",question)
+#                        print("target train: ", target_)
+#                        answer_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
+#                        print("answer train: ",  answer_,'\n')
                 loss = loss_function(loss_object, labels["dec_target"], output)
         qcount = 0
         totalfuzz = 0.0
-        if batchcount%10 == 0 and batchcount > 1:
+        if batchcount%100 == 0 and batchcount > 1:
             vocab = Vocab(params['vocab_path'], params['vocab_size'])
             try:
                 for testidx,testbatch in enumerate(testbatcher):
@@ -107,7 +107,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                 t0 = time.time()
                                 valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
                                 t1 = time.time()
-                                if idx%10 == 0:
+                                if idx%100 == 0:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
                                     if valfuzz > bestfuzz:
                                         bestfuzz = valfuzz

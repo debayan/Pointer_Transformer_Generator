@@ -3,19 +3,22 @@ import glob
 import json
 import sys
 from data_helper import Vocab, Data_Helper
+from transformers import BertTokenizer
 
 def test_example_generator(questions, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
         vocab = Vocab(vocab_path, vocab_size)
         for question in questions:
                 if not question:
                         continue
+                
                 question = question.lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 uid = -1
 
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
-                 
-                question_words = question.split()[ : max_enc_len]
+                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                tokens = tokenizer.encode(question)
+                question_words = tokenizer.convert_ids_to_tokens(tokens)[ : max_enc_len]
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
@@ -103,19 +106,24 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 intermediate_sparql = item["intermediate_sparql"]
                 uid = item["uid"]
+                tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                question = question.lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
+                tokens = tokenizer.encode(question)
+                
 
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                  
-                question_words = question.split()[ : max_enc_len]
+                question_words = tokenizer.convert_ids_to_tokens(tokens)[ : max_enc_len]
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
 
-                intsparql_words_ = intermediate_sparql.replace(","," , ").split()
+                intsparql_words_ = intermediate_sparql.replace(","," , ").replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ').replace('[',' [ ').replace(']',' ] ').replace("'"," ' ").split()
                 intsparql_words = [x.lower() for x in intsparql_words_]
                 intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                 intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
+               
                 dec_input, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids, max_dec_len, start_decoding, stop_decoding)
                 _, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
                 dec_len = len(dec_input)
