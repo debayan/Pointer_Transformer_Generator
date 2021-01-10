@@ -37,7 +37,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
                 questions = [q.numpy().decode('utf-8') for q in features["question"]]
-                output, attn_weights = model(questions,features["old_enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
+                output, attn_weights = model(questions, features["questions_fasttext_vectors"], features["old_enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
                                                                         enc_padding_mask=enc_padding_mask, 
                                                                         look_ahead_mask=combined_mask,
                                                                         dec_padding_mask=dec_padding_mask)
@@ -62,7 +62,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                 testquestions = [q.numpy().decode('utf-8') for q in testfeatures["question"]]
                 for i in range(params["max_dec_len"]):
                     test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["old_enc_input"], output)
-                    predictions, test_attn_weights = model(testquestions,testfeatures["old_enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
+                    predictions, test_attn_weights = model(testquestions, testfeatures["questions_fasttext_vectors"], testfeatures["old_enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
                     # select the last word from the seq_len dimension
                     predictions = predictions[: ,-1:, :]  # (batch_size, 1, vocab_size)
                     predicted_id = tf.cast(tf.argmax(predictions, axis=-1), tf.int32)
@@ -71,15 +71,18 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                     output = tf.concat([output, predicted_id], axis=-1)
                     
                 for answer,target,uid,question,oov in zip(output,testlabels["dec_target"],testfeatures["uid"],testfeatures["question"],testfeatures['question_oovs']):
-                    target_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
-                    answer_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(answer[1:].numpy()) if x != 1 and x!= 3])
-                    qcount += 1
-                    totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
-                    print("uid: ",int(uid.numpy()))
-                    print("question: ", question.numpy().decode('utf-8'))
-                    print("target: ", target_)
-                    print("answer: ", answer_,'\n')
-                    print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
+                    try:
+                        target_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target.numpy()) if x != 1 and x != 3])
+                        answer_ = ' '.join([vocab.id_to_word(x) if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(answer[1:].numpy()) if x != 1 and x!= 3])
+                        qcount += 1
+                        totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
+                        print("uid: ",int(uid.numpy()))
+                        print("question: ", question.numpy().decode('utf-8'))
+                        print("target: ", target_)
+                        print("answer: ", answer_,'\n')
+                        print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
+                    except Exception as err:
+                        print(err)
                 break
 
 

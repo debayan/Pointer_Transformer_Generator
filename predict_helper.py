@@ -16,7 +16,7 @@ def predict(featuress, params, model):
     for i in range(params["max_dec_len"]):
       enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["old_enc_input"], output)
       # predictions.shape == (batch_size, seq_len, vocab_size)
-      predictions, attention_weights = model(questions,features["old_enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
+      predictions, attention_weights = model(questions, features["questions_fasttext_vectors"], features["old_enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
                              enc_padding_mask=enc_padding_mask, 
                              look_ahead_mask=combined_mask,
                              dec_padding_mask=dec_padding_mask)

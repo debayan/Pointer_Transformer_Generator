@@ -3,7 +3,11 @@ import glob
 import json
 import sys
 from data_helper import Vocab, Data_Helper
+import gensim
 
+print("loading fasttext")
+fasttext = gensim.models.KeyedVectors.load_word2vec_format('./data/fasttext-wiki-news-subwords-300')
+print("loaded fastext")
 
 
 def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
@@ -13,7 +17,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         for item in d:
                 if not item["question"] or not item["intermediate_sparql"]:
                         continue
-                question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
+                question = item["question"].lower().replace('?','').replace('{','').replace('}','')
                 intermediate_sparql = item["intermediate_sparql"]
                 uid = item["uid"]
 
@@ -21,6 +25,13 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                  
                 question_words = question.split()[ : max_enc_len]
+                questions_fasttext_vectors = []
+                for word in question_words:
+                    try:
+                        questions_fasttext_vectors.append(fasttext.word_vec(word))
+                    except Exception as err:
+                        questions_fasttext_vectors.append(300*[0.0])
+                
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
@@ -44,6 +55,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         "target" : target,
                         "dec_len" : dec_len,
                         "question" : question,
+                        "questions_fasttext_vectors": questions_fasttext_vectors,
                         "intermediate_sparql" : intermediate_sparql
                 }
 
@@ -62,6 +74,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : tf.int32,
                                                                                                 "dec_len" : tf.int32,
                                                                                                 "question" : tf.string,
+                                                                                                "questions_fasttext_vectors": tf.float32,
                                                                                                 "intermediate_sparql" : tf.string
                                                                                         }, output_shapes={
                                                                                                 "uid": [],
@@ -74,6 +87,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : [None],
                                                                                                 "dec_len" : [],
                                                                                                 "question" : [],
+                                                                                                "questions_fasttext_vectors": [None,None],
                                                                                                 "intermediate_sparql" : []
                                                                                         })
         dataset = dataset.padded_batch(batch_size, padded_shapes=({"enc_len":[],
@@ -86,6 +100,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : [max_dec_len],
                                                                                                 "dec_len" : [],
                                                                                                 "question" : [],
+                                                                                                "questions_fasttext_vectors": [None,None],
                                                                                                 "intermediate_sparql" : []
                                                                                                 }),
                                                                                         padding_values={"enc_len":-1,
@@ -98,6 +113,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : 1,
                                                                                                 "dec_len" : -1,
                                                                                                 "question" : b"",
+                                                                                                "questions_fasttext_vectors": -1.0,
                                                                                                 "intermediate_sparql" : b""},
                                                                                         drop_remainder=True)
         def update(entry):
@@ -108,6 +124,7 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                         "question_oovs" : entry["question_oovs"],
                         "enc_len" : entry["enc_len"],
                         "question" : entry["question"],
+                        "questions_fasttext_vectors": entry["questions_fasttext_vectors"],
                         "max_oov_len" : tf.shape(entry["question_oovs"])[1] },
 
                         {"dec_input" : entry["dec_input"],
