@@ -87,7 +87,7 @@ class Transformer(tf.keras.Model):
                 self.model_depth = d_model
                 self.num_heads = num_heads
                 self.bertpreprocessor = hub.load("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/2")
-                self.bertencoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3",trainable=False)
+                self.bertencoder = hub.KerasLayer("https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-12_H-256_A-4/1",trainable=False)
                 
                 self.embedding = Embedding(vocab_size, d_model)
                 self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
@@ -102,12 +102,16 @@ class Transformer(tf.keras.Model):
                 #print("encpaddingmask: ",enc_padding_mask.shape)
                 question_bert_tokens = self.bertpreprocessor(questions)
                 question_bert_outputs = self.bertencoder(question_bert_tokens)
-                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[self.batch_size,enc_padding_mask.shape[3] - entrelsembeddings.shape[1],768])
-                embed_x =  tf.concat([trunc_bert_output,entrelsembeddings],1)
+                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[self.batch_size,enc_padding_mask.shape[3] - entrelsembeddings.shape[1],256])
+                zeros = tf.zeros([self.batch_size,enc_padding_mask.shape[3] - entrelsembeddings.shape[1],200],tf.float32)
+                trunc_bert_output_padded = tf.concat([trunc_bert_output,zeros],2)
+                embed_x =  tf.concat([trunc_bert_output_padded,entrelsembeddings],1)  #256 from bert, 200 from transe embeddings, so 456 length vector in all. For words, the first 256 is filled, and last 200 is empty. For entity and relation, first 256 is empty and last 200 is filled
                 #print("embed_xshape: ",embed_x.shape)
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)
+                #print("target: ",tar)
+                #sys.exit(1)
                 
                 dec_output, attention_weights, p_gens = self.decoder(embed_dec, enc_output, training, look_ahead_mask, dec_padding_mask)
                 

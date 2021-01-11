@@ -9,6 +9,8 @@ from elasticsearch import Elasticsearch
 es = Elasticsearch(host="ltcpu1",port=32816)
 entembedcache = {}
 
+
+
 def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
         vocab = Vocab(vocab_path, vocab_size)
         d = json.loads(open(filename).read())
@@ -16,11 +18,11 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         for item in d:
                 if not item["question"] or not item["intermediate_sparql"]:
                         continue
-                if len(item["question"].split()) > 100:
+                if len(item["question"].split()) > 80:
                         continue
                 question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
                 intermediate_sparql = item["intermediate_sparql"]
-                sparql = item['sparql_wikidata'].replace('{',' { ').replace('}',' } ')
+                sparql = item['sparql_wikidata'].lower().replace('{',' { ').replace('}',' } ')
                 ents = re.findall( r'wd:(.*?) ', sparql)
                 rels = re.findall( r'wdt:(.*?) ', sparql)
                 rels += re.findall ( r'ps:(.*?) ', sparql)
@@ -31,30 +33,35 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 entrels = []
                 entrelsembeddings = []
                 for ent in ents:
+                        ent = ent.upper().replace('.','')
                         enturl = '<http://www.wikidata.org/entity/'+ent+'>'
+                        ent=ent.lower().replace('.','')
                         res = es.search(index="wikidataembedsindex01", body={"query":{"term":{"key":{"value":enturl}}}})
                         try:
                                 embedding = [float(x) for x in res['hits']['hits'][0]['_source']['embedding']]
                                 entrels.append(ent)
-                                entrelsembeddings.append(embedding+568*[0.0])
+                                entrelsembeddings.append(256*[0.0]+embedding)
                                 #print(enturl,embedding)
                         except Exception as e:
                                 entrels.append(ent)
-                                entrelsembeddings.append(768*[-1.0])
+                                entrelsembeddings.append(456*[-1.0])
                                 print(enturl,' entity embedding not found')
                 for rel in rels:
+                        rel = rel.upper()
                         relurl = '<http://www.wikidata.org/entity/'+rel+'>'
+                        rel=rel.lower()
                         res = es.search(index="wikidataembedsindex01", body={"query":{"term":{"key":{"value":relurl}}}})
                         try:
                                 embedding = [float(x) for x in res['hits']['hits'][0]['_source']['embedding']]
                                 entrels.append(rel)
-                                entrelsembeddings.append(embedding+568*[0.0])
+                                entrelsembeddings.append(256*[0.0]+embedding)
                                 #print(relurl,embedding)
                         except Exception as e:
                                 entrels.append(rel)
-                                entrelsembeddings.append(768*[-2.0])
+                                entrelsembeddings.append(456*[-2.0])
                                 print(relurl,' rel embedding not found')
-                                    
+                if len(entrels) > 10:
+                        continue
                 uid = item["uid"]
 
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
@@ -65,13 +72,23 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
+                #print("question_wrds: ",question_words)
+                #print("enc_input_extend_vocab: ",enc_input_extend_vocab)
+                #print("question oovs: ",question_oovs)
 
-                intsparql_words_ = sparql.replace(","," , ").replace("wd:","").replace("wdt:","").replace("ps:","").replace("pq:","").replace("p:","").split()
+                intsparql_words_ = sparql.replace("("," ( ").replace(")"," ) ").replace(","," , ").replace("wd:","").replace("wdt:","").replace("ps:","").replace("pq:","").replace("p:","").split()
+                #print("sparql: ",sparql)
+                #print("intsparql: ",intsparql_words_)
                 intsparql_words = [x.lower() for x in intsparql_words_]
                 intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                 intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
                 dec_input, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids, max_dec_len, start_decoding, stop_decoding)
+                #print("decinput:",dec_input)
+                #print("tar1: ",target)
+                #print("extendvocab: ",intsparql_ids_extend_vocab)
                 _, target = Data_Helper.get_dec_inp_targ_seqs(intsparql_ids_extend_vocab, max_dec_len, start_decoding, stop_decoding)
+                #print("_: ",_)
+                #print("tar2: ",target)
                 dec_len = len(dec_input)
          
                 output = {

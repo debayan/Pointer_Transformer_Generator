@@ -85,7 +85,6 @@ class Data_Helper:
                 ids = []
                 unk_id = vocab.word_to_id(vocab.UNKNOWN_TOKEN)
                 for w in abstract_words:
-                        #print(w,len(w))
                         if len(w) > 2:
                                 if w[0] == "'" and w[-1] == "'": #sparql specific hack for handling questions like "which cities start with the letter L "
                                         w = w[1:-1]
