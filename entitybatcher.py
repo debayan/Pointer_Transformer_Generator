@@ -26,12 +26,16 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                  
                 question_words = question.split()[ : max_enc_len]
                 questions_fasttext_vectors = []
+                #print(question_words)
                 for word in question_words:
                     try:
                         questions_fasttext_vectors.append(fasttext.word_vec(word))
                     except Exception as err:
                         questions_fasttext_vectors.append(300*[0.0])
-                
+                if len(question_words) == 0:
+                    question_fasttext_vectors = [[]]
+                if not questions_fasttext_vectors:
+                    questions_fasttext_vectors = [[]]
                 enc_len = len(question_words)
                 enc_input = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
