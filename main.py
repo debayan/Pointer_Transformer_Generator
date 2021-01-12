@@ -19,11 +19,11 @@ def main():
         
         parser.add_argument("--vocab_size", default=128, help="Vocabulary size", type=int)
         
-        parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
+        parser.add_argument("--num_layers", default=8, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=456, help="Model Embedding size", type=int)
+        parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=8, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=10, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 

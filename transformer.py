@@ -95,17 +95,8 @@ class Transformer(tf.keras.Model):
                 self.final_layer = tf.keras.layers.Dense(vocab_size)
 
         
-        def call(self, questions, entrels, entrelsembeddings, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
- 
-                max_batch_seq_len = enc_padding_mask.shape[3]
-                #print("entrelembed: ",entrelsembeddings.shape)
-                #print("encpaddingmask: ",enc_padding_mask.shape)
-                question_bert_tokens = self.bertpreprocessor(questions)
-                question_bert_outputs = self.bertencoder(question_bert_tokens)
-                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[self.batch_size,enc_padding_mask.shape[3] - entrelsembeddings.shape[1],256])
-                zeros = tf.zeros([self.batch_size,enc_padding_mask.shape[3] - entrelsembeddings.shape[1],200],tf.float32)
-                trunc_bert_output_padded = tf.concat([trunc_bert_output,zeros],2)
-                embed_x =  tf.concat([trunc_bert_output_padded,entrelsembeddings],1)  #256 from bert, 200 from transe embeddings, so 456 length vector in all. For words, the first 256 is filled, and last 200 is empty. For entity and relation, first 256 is empty and last 200 is filled
+        def call(self, questions, questions_fasttext_vectors, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
+                embed_x =  questions_fasttext_vectors
                 #print("embed_xshape: ",embed_x.shape)
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
