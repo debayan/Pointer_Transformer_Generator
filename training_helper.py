@@ -5,6 +5,10 @@ import sys
 from data_helper import Data_Helper, Vocab
 import time
 from fuzzywuzzy import fuzz
+import rdflib
+from tensorflow.python.eager import context
+import gc
+
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
         def __init__(self, d_model, warmup_steps=4000):
@@ -22,17 +26,31 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
                 return tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
 
 
-def loss_function(loss_object, real, pred):
+def check_valid_sparql(pred, vocab=None , rdfgraph = None):
+        right = 0
+        wrong = 0
+        for question in pred:
+                answer = ' '.join([vocab.id_to_word(x)  for x in list(tf.math.argmax(question, axis=1).numpy()) if x != 1 and x!= 3])
+                answer = answer.replace('@@ent@@','<http://dbpedia.org/resource/International_Semantic_Web_Conference>').replace('@@pred@@','<http://dbpedia.org/ontology/academicDiscipline>').replace('[UNK]','\'12\'')
+                try:
+                        qres = rdfgraph.query(answer)
+                        right += 1
+                except Exception as err:
+                        wrong += 1
+        return wrong/float(pred.shape[0]) #the more wrong sparqls, higher the returned loss. pred.shape[0] = batch_size
+
+def loss_function(loss_object, real, pred, vocab=None, rdfgraph = None):
         mask = tf.math.logical_not(tf.math.equal(real, 0))
+        validsparqlloss = check_valid_sparql(pred , vocab, rdfgraph)
         loss_ = loss_object(real, pred)
 
         mask = tf.cast(mask, dtype=loss_.dtype)
         loss_ *= mask
+        del pred
+        return tf.reduce_mean(loss_) + validsparqlloss
 
-        return tf.reduce_mean(loss_)
 
-
-def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher):
+def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, rdfgraph = None, vocab = None):
         enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["old_enc_input"], labels["dec_input"])
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
@@ -50,11 +68,10 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 #                        print("target: ", target)
 #                        answer = ' '.join([vocab.id_to_word(x)  for x in list(tf.math.argmax(answer, axis=1).numpy()) if x != 1 and x!= 3])
 #                        print("answer: ",  answer,'\n')
-                loss = loss_function(loss_object, labels["dec_target"], output)
+                loss = loss_function(loss_object, labels["dec_target"], output, vocab, rdfgraph)
         qcount = 0
         totalfuzz = 0.0
         if batchcount%100 == 0 and batchcount > 1:
-            vocab = Vocab(params['vocab_path'], params['vocab_size'])
             for testidx,testbatch in enumerate(testbatcher):
                 output = tf.tile([[2]], [params["batch_size"], 1]) # 2 = start_decoding
                 testfeatures = testbatch[0]
@@ -94,7 +111,9 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9)  
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
-
+        rdfgraph = rdflib.Graph()
+        rdfgraph.load('http://dbpedia.org/resource/Semantic_Web')
+        vocab = Vocab(params['vocab_path'], params['vocab_size'])
         try:
                 bestfuzz = 0.0
                 epoch = 0
@@ -102,7 +121,8 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                         epoch += 1
                         for idx,batch in enumerate(batcher):
                                 t0 = time.time()
-                                valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
+                                valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher,rdfgraph, vocab)
+                               
                                 t1 = time.time()
                                 if idx%100 == 0:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)

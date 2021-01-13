@@ -4,7 +4,8 @@ from build_eval_test import build_model, train, test
 import logging
 import os
 
-
+tf.config.threading.set_intra_op_parallelism_threads(10)
+tf.config.threading.set_inter_op_parallelism_threads(10)
 
 def main():
 
