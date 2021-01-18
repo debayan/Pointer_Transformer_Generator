@@ -45,6 +45,8 @@ def main():
         parser.add_argument("--data_dir",  help="Data Folder")
 
         parser.add_argument("--vocab_path", help="Vocab path")
+        
+        parser.add_argument("--prop_embedding_path", default="wikidatapropembeddings.json" ,help="Wikidata property embedding file path")
 
         parser.add_argument("--test_dir", help="Test file input")
 
