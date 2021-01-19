@@ -55,11 +55,11 @@ def train(params):
         else:
                 print("Initializing from scratch.")
                 
-        print("Loading property embeddings")
-        propembeds = json.loads(open(params["prop_embedding_path"]).read())
+        #print("Loading property embeddings")
+        #propembeds = json.loads(open(params["prop_embedding_path"]).read())
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, testb, params, ckpt, ckpt_manager, propembeds)
+        train_model(transformer, b, testb, params, ckpt, ckpt_manager)
         
 
 

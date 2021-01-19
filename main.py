@@ -12,19 +12,19 @@ def main():
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("--max_enc_len", default=128, help="Encoder input max sequence length", type=int)
+        parser.add_argument("--max_enc_len", default=2000, help="Encoder input max sequence length", type=int)
         
         parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
         parser.add_argument("--batch_size", default=16, help="batch size", type=int)
         
-        parser.add_argument("--vocab_size", default=128, help="Vocabulary size", type=int)
+        parser.add_argument("--vocab_size", default=8500, help="Vocabulary size", type=int)
         
         parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=768, help="Model Embedding size", type=int)
+        parser.add_argument("--model_depth", default=1142, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=8, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=2, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
