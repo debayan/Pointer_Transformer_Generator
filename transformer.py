@@ -2,8 +2,6 @@ import tensorflow as tf
 import sys
 from layers import Embedding, EncoderLayer, DecoderLayer
 from utils import _calc_final_dist
-import tensorflow_text as text
-import tensorflow_hub as hub
 
 class Encoder(tf.keras.layers.Layer):
         def __init__(self, num_layers, d_model, num_heads, dff, input_vocab_size, 
@@ -86,11 +84,9 @@ class Transformer(tf.keras.Model):
                 self.batch_size = batch_size
                 self.model_depth = d_model
                 self.num_heads = num_heads
-                self.bertpreprocessor = hub.load("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/2")
-                self.bertencoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3",trainable=False)
-                
                 self.embedding = Embedding(vocab_size, d_model)
-                self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
+                #self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
+                self.encoder = Encoder(3, d_model, num_heads, dff, vocab_size, rate)
                 self.decoder = Decoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
                 self.final_layer = tf.keras.layers.Dense(vocab_size)
 

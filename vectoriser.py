@@ -10,7 +10,7 @@ from fuzzywuzzy import fuzz
 
 postags = ["CC","CD","DT","EX","FW","IN","JJ","JJR","JJS","LS","MD","NN","NNS","NNP","NNPS","PDT","POS","PRP","PRP$","RB","RBR","RBS","RP","SYM","TO","UH","VB","VBD","VBG","VBN","VBP","VBZ","WDT","WP","WP$","WRB"]
 
-es = Elasticsearch(host="ltcpu1",port=32816)
+es = Elasticsearch(host="134.100.15.203",port=32816)
 
 
 entembedcache = {}
@@ -40,7 +40,7 @@ def getdescriptionsembedding(entid):
         return [0]*300
     try:
         description = res['hits']['hits'][0]['_source']['description']
-        r = requests.post("http://ltcpu1:8887/ftwv",json={'chunks': [description]},headers={'Connection':'close'})
+        r = requests.post("http://134.100.15.203:8887/ftwv",json={'chunks': [description]},headers={'Connection':'close'})
         descembedding = r.json()[0]
         descembedcache[entid] = descembedding
         return descembedding
@@ -130,7 +130,7 @@ class Vectoriser():
         candidatevectors = []
         #questionembedding
         tokens = [token for token in q.split(" ") if token != ""]
-        r = requests.post("http://ltcpu1:8887/ftwv",json={'chunks': tokens},headers={'Connection':'close'})
+        r = requests.post("http://134.100.15.203:8887/ftwv",json={'chunks': tokens},headers={'Connection':'close'})
         #print("r: ",r)
         questionembeddings = r.json()
         questionembedding = list(map(lambda x: sum(x)/len(x), zip(*questionembeddings)))
