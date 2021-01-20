@@ -5,7 +5,7 @@ from predict_helper import predict
 from entitybatcher import entitybatcher
 from transformer import Transformer
 import os
-
+import json
 
 
 def my_model(features, labels, mode, params):
@@ -54,6 +54,9 @@ def train(params):
                 print("Restored from {}".format(ckpt_manager.latest_checkpoint))
         else:
                 print("Initializing from scratch.")
+                
+        #print("Loading property embeddings")
+        #propembeds = json.loads(open(params["prop_embedding_path"]).read())
 
         tf.compat.v1.logging.info("Starting the training ...")
         train_model(transformer, b, testb, params, ckpt, ckpt_manager)

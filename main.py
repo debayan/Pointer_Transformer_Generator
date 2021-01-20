@@ -4,26 +4,28 @@ from build_eval_test import build_model, train, test
 import logging
 import os
 
-
+tf.config.threading.set_intra_op_parallelism_threads(10)
+tf.config.threading.set_inter_op_parallelism_threads(10)
 
 def main():
 
         tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("--max_enc_len", default=128, help="Encoder input max sequence length", type=int)
+        parser.add_argument("--max_enc_len", default=1000, help="Encoder input max sequence length", type=int)
         
         parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
         parser.add_argument("--batch_size", default=16, help="batch size", type=int)
         
-        parser.add_argument("--vocab_size", default=128, help="Vocabulary size", type=int)
+        parser.add_argument("--vocab_size", default=15000, help="Vocabulary size", type=int)
         
-        parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
+        parser.add_argument("--num_layers", default=6, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=256, help="Model Embedding size", type=int)
+
+        parser.add_argument("--model_depth", default=1142, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=8, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=2, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
@@ -44,6 +46,8 @@ def main():
         parser.add_argument("--data_dir",  help="Data Folder")
 
         parser.add_argument("--vocab_path", help="Vocab path")
+        
+        parser.add_argument("--prop_embedding_path", default="wikidatapropembeddings.json" ,help="Wikidata property embedding file path")
 
         parser.add_argument("--test_dir", help="Test file input")
 

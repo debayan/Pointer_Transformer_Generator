@@ -22,26 +22,40 @@ def predict(featuress, params, model):
                              enc_padding_mask=enc_padding_mask, 
                              look_ahead_mask=combined_mask,
                              dec_padding_mask=dec_padding_mask)
-            # select the last word from the seq_len dimension
-            predictions1 = predictions1[: ,-1:, :]  # (batch_size, 1, vocab_size)
-            predicted_id1 = tf.cast(tf.argmax(predictions1, axis=-1), tf.int32)
-            # concatentate the predicted_id to the output which is given to the decoder
-            # as its input.
-            output1 = tf.concat([output1, predicted_id1], axis=-1)
-        for answer1stpass,target1stpass,uid,question1stpass,oov in zip(output1,labels["dec_target"],features["uid"],features["question"],features['question_oovs']):
-            try:
-                answerclean1stpass = answer1stpass[1:]
-                target1stpass_ = ' '.join([vocab.id_to_word(x)  if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(target1stpass.numpy()) if x != 1 and x != 3])
-                answer1stpass_ = ' '.join([vocab.id_to_word(x)  if x < vocab.size() else list(oov.numpy())[x - vocab.size()].decode('utf-8') for x in list(answerclean1stpass.numpy()) if x != 1 and x!= 3])
-                qcount1stpass += 1
-                totalfuzz1stpass += fuzz.ratio(target1stpass_.lower(), answer1stpass_.lower())
-                print("uid: ",int(uid.numpy()))
-                print("1st pass question: ", question1stpass.numpy().decode('utf-8'))
-                print("1st pass target: ", target1stpass_)
-                print("1st pass answer: ", answer1stpass_,'\n')
-            except Exception as err:
-                print("err: ",err)
-            
-               
-        print("1st pass avg fuzz after %d questions = %f"%(qcount1stpass,float(totalfuzz1stpass)/qcount1stpass))
-    return output, attention_weights
+
+      # select the last word from the seq_len dimension
+      predictions = predictions[: ,-1:, :]  # (batch_size, 1, vocab_size)
+      predicted_id = tf.cast(tf.argmax(predictions, axis=-1), tf.int32)
+      # concatentate the predicted_id to the output which is given to the decoder
+      # as its input.
+      output = tf.concat([output, predicted_id], axis=-1)
+    for answer,target,uid,question,oov in zip(output,labels["dec_target"],features["uid"],features["question"],features['question_oovs']):
+      answerclean = answer[1:]
+      words = []
+      for x in list(target.numpy()):
+        if x==3 or x==1:
+          break
+        if x < vocab.size():
+          words.append(vocab.id_to_word(x))
+        else:
+          words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
+      target_ = ' '.join(words)
+      words = []
+      for x in list(answerclean.numpy()):
+        if x==3 or x==1:
+          break
+        if x < vocab.size():
+          words.append(vocab.id_to_word(x))
+        else:
+          words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
+      answer_ = ' '.join(words)
+      qcount += 1
+      totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
+      print("uid: ",int(uid.numpy()))
+      print("question: ", question.numpy().decode('utf-8'))
+      print("target: ", target_)
+      print("answer: ", answer_,'\n')
+      print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
+
+  return output, attention_weights
+
