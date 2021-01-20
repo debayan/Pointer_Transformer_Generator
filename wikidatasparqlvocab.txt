@@ -51,7 +51,6 @@ count
 ?s
 ?ans_2
 .
-<<<<<<< HEAD
 1
 2
 3
@@ -77,7 +76,6 @@ count
 23
 24
 25
-=======
 wdt:p7111
 wdt:p6632
 wdt:p8992
@@ -8427,4 +8425,3 @@ wdt:p2529
 wdt:p2605
 wdt:p8482
 wdt:p5928
->>>>>>> sparqllossfunction
