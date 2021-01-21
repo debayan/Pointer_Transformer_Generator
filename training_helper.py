@@ -6,7 +6,11 @@ import sys
 from data_helper import Data_Helper, Vocab
 import time
 from fuzzywuzzy import fuzz
+from tensorflow.keras.losses import categorical_crossentropy
 
+def scce_with_ls(y, y_hat):
+    y = tf.one_hot(tf.cast(y, tf.int32), y_hat.shape[2]) #n_classes
+    return categorical_crossentropy(y, y_hat, label_smoothing = 0.1)
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
         def __init__(self, d_model, warmup_steps=4000):
@@ -46,7 +50,8 @@ def check_valid_sparql(pred, vocab=None , rdfgraph = None):
 def loss_function(loss_object, real, pred):
         #mask = tf.math.logical_not(tf.math.equal(real, 0))
        
-        loss_ = loss_object(real, pred)
+        #loss_ = loss_object(real, pred)
+        loss_ = scce_with_ls(real, pred)
 
         #mask = tf.cast(mask, dtype=loss_.dtype)
         #loss_ *= mask
@@ -126,7 +131,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         print("target: ", target_)
                         print("answer: ", answer_,'\n')
                         print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
-                        print("testidx: ",testidx)
+                    print("testidx: ",testidx)
                     if testidx >= 10:
                         break
                 except Exception as err:

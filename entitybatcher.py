@@ -3,9 +3,9 @@ import glob
 import json
 import sys
 from data_helper import Vocab, Data_Helper
-from vectoriser import Vectoriser
+from vectorisergold import Vectoriser
 
-v = Vectoriser()
+v = Vectoriser('wikidataprops.json')
 
 
 
@@ -16,23 +16,24 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         for item in d:
                 if not item["question"] or not item["sparql_wikidata"]:
                         continue
-                question = item["question"].lower()#.replace('?','').lower()#replace('{','').replace('}','').lower()
-                intermediate_sparql = item["sparql_wikidata"].lower()
+                question = item["question"]
+                intermediate_sparql = item["sparql_wikidata"].replace(","," , ").replace('{',' { ').replace('}',' } ')
                 uid = item["uid"]
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                  
-                questionvectors = v.vectorise(question)
-                enc_input = [word[0] for word in questionvectors][:max_enc_len]
+                questiontokens,questionvectors = v.vectorise(question, intermediate_sparql)
+
+                enc_input = questionvectors[:max_enc_len]
                 enc_len = len(enc_input)
                 if enc_len == 0:
                         continue
-                question_words = ['wd:'+word[1].lower() for word in questionvectors][:max_enc_len]
+                question_words = [w.lower() for w in questiontokens][:max_enc_len]
                 #enc_len = len(question_words)
                 enc_input_mask = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
 
-                intsparql_words_ = intermediate_sparql.replace(","," , ").replace('{',' { ').replace('}',' } ').split()
+                intsparql_words_ = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').lower().split()
                 intsparql_words = [x for x in intsparql_words_]
                 intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                 intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)

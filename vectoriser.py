@@ -16,13 +16,17 @@ es = Elasticsearch(host="134.100.15.203",port=32816)
 entembedcache = {}
 descembedcache = {}
 def getembedding(enturl):
+    print(enturl)
     if enturl in entembedcache:
         return entembedcache[enturl]
     entityurl = '<http://www.wikidata.org/entity/'+enturl[37:]+'>'
+    print("entityurl: ",entityurl)
     res = es.search(index="wikidataembedsindex01", body={"query":{"term":{"key":{"value":entityurl}}}})
     try:
         embedding = [float(x) for x in res['hits']['hits'][0]['_source']['embedding']]
         entembedcache[enturl] = embedding
+        print(embedding)
+        sys.exit(1)
         return embedding
     except Exception as e:
         #print(enturl,' entity embedding not found')
@@ -59,6 +63,8 @@ def CreateVectors(inputcandidatetuple):
         tokenembedding = questionembeddings[idx]
         word = chunks[idx][0]
         res = es.search(index="wikidataentitylabelindex01", body={"query":{"multi_match":{"query":chunks[idx][0]}},"size":20})
+        print(res)
+        sys.exit(1)
         esresults = res['hits']['hits']
         if len(esresults) > 0:
             for entidx,esresult in enumerate(esresults):
