@@ -44,12 +44,12 @@ def check_valid_sparql(pred, vocab=None , rdfgraph = None):
         return wrong/float(pred.shape[0]) #the more wrong sparqls, higher the returned loss. pred.shape[0] = batch_size
 
 def loss_function(loss_object, real, pred):
-        mask = tf.math.logical_not(tf.math.equal(real, 0))
+        #mask = tf.math.logical_not(tf.math.equal(real, 0))
        
         loss_ = loss_object(real, pred)
 
-        mask = tf.cast(mask, dtype=loss_.dtype)
-        loss_ *= mask
+        #mask = tf.cast(mask, dtype=loss_.dtype)
+        #loss_ *= mask
         #del pred
         return tf.reduce_mean(loss_)
 
@@ -80,7 +80,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         
         qcount = 0
         totalfuzz = 0.0
-        if batchcount%100 == 0 and batchcount > 1:
+        if batchcount%50 == 0 and batchcount > 1:
             vocab = Vocab(params['vocab_path'], params['vocab_size'])
 
             for testidx,testbatch in enumerate(testbatcher):
@@ -136,8 +136,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 
 def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         learning_rate = CustomSchedule(params["model_depth"])
-        #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9)  
-        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=1e-9)
+        optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=1e-9)  
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
         
@@ -151,7 +150,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                 valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
                                
                                 t1 = time.time()
-                                if idx%100 == 0 and idx > 0:
+                                if idx%50 == 0 and idx > 0:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
                                     if valfuzz > bestfuzz:
                                         bestfuzz = valfuzz

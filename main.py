@@ -20,7 +20,7 @@ def main():
         
         parser.add_argument("--vocab_size", default=15000, help="Vocabulary size", type=int)
         
-        parser.add_argument("--num_layers", default=6, help="Model encoder and decoder number of layers", type=int)
+        parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
 
         parser.add_argument("--model_depth", default=1142, help="Model Embedding size", type=int)

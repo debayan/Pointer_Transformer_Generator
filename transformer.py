@@ -88,7 +88,7 @@ class Transformer(tf.keras.Model):
 
                 self.embedding = Embedding(vocab_size, d_model)
                 #self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
-                self.encoder = Encoder(3, d_model, num_heads, dff, vocab_size, rate)
+                self.encoder = Encoder(2, d_model, num_heads, dff, vocab_size, rate)
                 self.decoder = Decoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
                 self.final_layer = tf.keras.layers.Dense(vocab_size)
 
