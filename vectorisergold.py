@@ -122,7 +122,7 @@ class Vectoriser():
 #            print("labelembedding: ",labelembedding)
             candidatevectors.append(labelembedding+relembedding)
             candidatetokens.append(rel)
-        return candidatetokens,candidatevectors
+        return candidatetokens,candidatevectors,ents,rels
         
         
         

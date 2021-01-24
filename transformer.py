@@ -2,8 +2,7 @@ import tensorflow as tf
 import sys
 from layers import Embedding, EncoderLayer, DecoderLayer
 from utils import _calc_final_dist
-import tensorflow_text as text
-import tensorflow_hub as hub
+
 
 class Encoder(tf.keras.layers.Layer):
         def __init__(self, num_layers, d_model, num_heads, dff, input_vocab_size, 

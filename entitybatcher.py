@@ -22,7 +22,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 start_decoding = vocab.word_to_id(vocab.START_DECODING)
                 stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                  
-                questiontokens,questionvectors = v.vectorise(question, intermediate_sparql)
+                questiontokens,questionvectors,ents,rels = v.vectorise(question, intermediate_sparql)
 
                 enc_input = questionvectors[:max_enc_len]
                 enc_len = len(enc_input)
@@ -32,8 +32,11 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                 #enc_len = len(question_words)
                 enc_input_mask = [vocab.word_to_id(w) for w in question_words]
                 enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
-
-                intsparql_words_ = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').lower().split()
+                for idx,ent in enumerate(ents):
+                    intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(idx+1))
+                for idx,rel in enumerate(rels):
+                    intermediate_sparql = intermediate_sparql.replace(rel,'predpos@@'+str(idx+1))
+                intsparql_words_ = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').replace("'"," ' ").lower().split()
                 intsparql_words = [x for x in intsparql_words_]
                 intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                 intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
@@ -60,7 +63,9 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         "target" : target,
                         "dec_len" : dec_len,
                         "intermediate_sparql" : intermediate_sparql,
-                        "question": question
+                        "question": question,
+                        "ents":ents,
+                        "rels":rels
                 }
 
                 yield output
@@ -78,7 +83,9 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : tf.int32,
                                                                                                 "dec_len" : tf.int32,
                                                                                                 "intermediate_sparql" : tf.string,
-                                                                                                "question": tf.string
+                                                                                                "question": tf.string,
+                                                                                                "ents":tf.string,
+                                                                                                "rels":tf.string
                                                                                         }, output_shapes={
                                                                                                 "uid": [],
                                                                                                 "enc_len":[],
@@ -90,7 +97,9 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : [None],
                                                                                                 "dec_len" : [],
                                                                                                 "intermediate_sparql" : [],
-                                                                                                "question": []
+                                                                                                "question": [],
+                                                                                                "ents":[None],
+                                                                                                "rels":[None]
                                                                                         })
         dataset = dataset.padded_batch(batch_size, padded_shapes=({"enc_len":[],
                                                                                                 "enc_input" : [None,None],
@@ -102,7 +111,9 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : [max_dec_len],
                                                                                                 "dec_len" : [],
                                                                                                 "intermediate_sparql" : [],
-                                                                                                "question": []
+                                                                                                "question": [],
+                                                                                                "ents": [None],
+                                                                                                "rels": [None]
                                                                                                 }),
                                                                                         padding_values={"enc_len":-1,
                                                                                                 "uid": -1,
@@ -114,7 +125,9 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                                                                                                 "target" : 1,
                                                                                                 "dec_len" : -1,
                                                                                                 "intermediate_sparql" : b"",
-                                                                                                "question": b""},
+                                                                                                "question": b"",
+                                                                                                "ents": b"",
+                                                                                                "rels": b""},
                                                                                         drop_remainder=True)
         def update(entry):
                 return ({"enc_input" : entry["enc_input"],
@@ -124,7 +137,9 @@ def batch_generator(generator, filenames, vocab_path,  vocab_size, max_enc_len, 
                         "question_oovs" : entry["question_oovs"],
                         "enc_len" : entry["enc_len"],
                         "max_oov_len" : tf.shape(entry["question_oovs"])[1],
-                        "question": entry["question"] },
+                        "question": entry["question"],
+                        "ents": entry["ents"],
+                        "rels": entry["rels"] },
 
                         {"dec_input" : entry["dec_input"],
                         "dec_target" : entry["target"],
