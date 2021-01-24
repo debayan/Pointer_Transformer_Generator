@@ -21,9 +21,9 @@ def main():
         
         parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=768, help="Model Embedding size", type=int)
+        parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=8, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=1, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
@@ -31,7 +31,7 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=15000, help="Max steps for training", type=int)
+        parser.add_argument("--max_steps",default=8000, help="Max steps for training", type=int)
                 
         parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         

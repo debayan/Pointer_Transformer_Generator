@@ -86,9 +86,7 @@ class Transformer(tf.keras.Model):
                 self.batch_size = batch_size
                 self.model_depth = d_model
                 self.num_heads = num_heads
-                self.bertpreprocessor = hub.load("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/2")
-                self.bertencoder = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3",trainable=False)
-                
+               
                 self.embedding = Embedding(vocab_size, d_model)
                 self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
                 self.decoder = Decoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
@@ -97,13 +95,14 @@ class Transformer(tf.keras.Model):
         
         def call(self, questions, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
  
-                max_batch_seq_len = enc_padding_mask.shape[3]
-                batch_size = enc_padding_mask.shape[0]
+#                max_batch_seq_len = enc_padding_mask.shape[3]
+#                batch_size = enc_padding_mask.shape[0]
 
-                question_bert_tokens = self.bertpreprocessor(questions)
-                question_bert_outputs = self.bertencoder(question_bert_tokens)
-                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[batch_size,max_batch_seq_len,768])
-                embed_x =  trunc_bert_output
+#                question_bert_tokens = self.bertpreprocessor(questions)
+#                question_bert_outputs = self.bertencoder(question_bert_tokens)
+#                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[batch_size,max_batch_seq_len,768])
+#                embed_x =  trunc_bert_output
+                embed_x = inp_
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)
