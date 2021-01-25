@@ -18,6 +18,7 @@ labelembedcache = {}
 relembedcache = {}
 
 def getkgembedding(enturl):
+    enturl = enturl.replace('.','')
     if enturl in entembedcache:
         return entembedcache[enturl]
     entityurl = '<http://www.wikidata.org/entity/'+enturl+'>'
@@ -35,6 +36,7 @@ def gettextmatchmetric(label,word):
     return [fuzz.ratio(label,word)/100.0,fuzz.partial_ratio(label,word)/100.0,fuzz.token_sort_ratio(label,word)/100.0]
 
 def getlabelembedding(entid):
+    entid = entid.replace('.','')
     if entid in labelembedcache:
         return labelembedcache[entid]
     res = es.search(index="wikidataentitylabelindex01", body={"query":{"term":{"uri":{"value":'http://wikidata.dbpedia.org/resource/'+entid}}}})
