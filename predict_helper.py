@@ -37,6 +37,7 @@ def predict(featuress, params, model):
         if x < vocab.size():
           words.append(vocab.id_to_word(x))
         else:
+          print(x,vocab.size())
           words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
       target_ = ' '.join(words)
       words = []
@@ -46,6 +47,7 @@ def predict(featuress, params, model):
         if x < vocab.size():
           words.append(vocab.id_to_word(x))
         else:
+          print(x,vocab.size())
           words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
       answer_ = ' '.join(words)
       qcount += 1
