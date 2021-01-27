@@ -18,6 +18,7 @@ entembedcache = {}
 labelembedcache = {}
 relembedcache = {}
 labelcache = {}
+overallcache = {}
 
 def getkgembedding(enturl):
     if enturl in entembedcache:
@@ -101,6 +102,8 @@ class Vectoriser():
    
 
     def vectorise(self, nlquery, sparql):
+#        if nlquery in overallcache:
+#            return overallcache[nlquery][0],overallcache[nlquery][1],overallcache[nlquery][2],overallcache[nlquery][3],overallcache[nlquery][4],overallcache[nlquery][5]
         if not nlquery:
             return []
         q = re.sub("\s*\?", "", nlquery.strip())
@@ -175,6 +178,7 @@ class Vectoriser():
         random.shuffle(finalrels)
         candidatetokens += [x for x,y in finalrels]
         candidatevectors += [y for x,y in finalrels]
+#        overallcache[nlquery] = [candidatetokens,candidatevectors,ents,rels,finalentities,finalrels]
         return candidatetokens,candidatevectors,ents,rels,finalentities,finalrels
         
         

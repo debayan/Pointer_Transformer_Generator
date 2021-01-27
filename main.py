@@ -29,7 +29,7 @@ def main():
         
         parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=5, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=10, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
