@@ -47,8 +47,10 @@ def predict(featuress, params, model):
         if x < vocab.size():
           words.append(vocab.id_to_word(x))
         else:
-          print(x,vocab.size())
-          words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
+          try:
+              words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
+          except Exception as err:
+              print(err)
       answer_ = ' '.join(words)
       qcount += 1
       totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())

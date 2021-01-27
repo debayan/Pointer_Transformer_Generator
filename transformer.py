@@ -2,6 +2,7 @@ import tensorflow as tf
 import sys
 from layers import Embedding, EncoderLayer, DecoderLayer
 from utils import _calc_final_dist
+import numpy as np
 
 
 class Encoder(tf.keras.layers.Layer):
@@ -91,17 +92,22 @@ class Transformer(tf.keras.Model):
                 self.decoder = Decoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
                 self.final_layer = tf.keras.layers.Dense(vocab_size)
 
-        
-        def call(self, questions, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
- 
-#                max_batch_seq_len = enc_padding_mask.shape[3]
-#                batch_size = enc_padding_mask.shape[0]
+        def get_angles(self,pos, i):
+        	    angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(self.model_depth))
+	            return pos * angle_rates
 
-#                question_bert_tokens = self.bertpreprocessor(questions)
-#                question_bert_outputs = self.bertencoder(question_bert_tokens)
-#                trunc_bert_output = tf.slice(question_bert_outputs["sequence_output"],[0,0,0],[batch_size,max_batch_seq_len,768])
-#                embed_x =  trunc_bert_output
-                embed_x = inp_
+        def positional_encoding(self,x):#position, d_model):
+                angle_rads = self.get_angles(np.arange(x.shape[1])[:, np.newaxis],np.arange(self.model_depth)[np.newaxis, :])
+                # apply sin to even indices in the array; 2i
+                angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+                # apply cos to odd indices in the array; 2i+1
+                angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+                pos_encoding = angle_rads[np.newaxis, ...]
+                return tf.cast(pos_encoding, dtype=tf.float32)
+
+        def call(self, questions, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
+                positional_encoding = self.positional_encoding(inp_)
+                embed_x = inp_ + positional_encoding[:, :tf.shape(inp_)[1], :]
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)

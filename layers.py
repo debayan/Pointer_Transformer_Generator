@@ -17,8 +17,6 @@ class Embedding(tf.keras.layers.Layer):
 		embed_x += self.pos_encoding[:, :tf.shape(x)[1], :]
 		return embed_x
 
-
-
 class MultiHeadAttention(tf.keras.layers.Layer):
 	def __init__(self, d_model, num_heads):
 		super(MultiHeadAttention, self).__init__()

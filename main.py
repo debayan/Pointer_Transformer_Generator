@@ -37,7 +37,7 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=80000, help="Max steps for training", type=int)
+        parser.add_argument("--max_steps",default=800000, help="Max steps for training", type=int)
                 
         parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         
