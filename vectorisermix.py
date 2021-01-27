@@ -29,7 +29,7 @@ def getkgembedding(enturl):
         entembedcache[enturl] = embedding
         return embedding
     except Exception as e:
-        print(enturl,' entity embedding not found')
+        #print(enturl,' entity embedding not found')
         return 200*[0.0]
     return 200*[0.0]
 
@@ -72,13 +72,18 @@ def getdisambcands(ents):
     disambcands = []
     listsize = int((30.0 - len(ents)) / len(ents))
     for ent in ents:
-        res = es.search(index="wikidataentitylabelindex01", body={"query":{"multi_match":{"query":labelcache[ent]}},"size":listsize})
-        esresults = res['hits']['hits']
-        if len(esresults) > 0:
-            for entidx,esresult in enumerate(esresults):
-                uri = esresult['_source']['uri']
-                disambcands.append(uri[37:])
+        try:
+            res = es.search(index="wikidataentitylabelindex01", body={"query":{"multi_match":{"query":labelcache[ent]}},"size":listsize})
+            esresults = res['hits']['hits']
+            if len(esresults) > 0:
+                for entidx,esresult in enumerate(esresults):
+                    uri = esresult['_source']['uri']
+                    disambcands.append(uri[37:])
+        except Exception as err:
+            print("oops: ",err)
+            
     return disambcands
+    
     
 def getmorerels(rels, propdict):
     relcands = []
@@ -170,7 +175,7 @@ class Vectoriser():
         random.shuffle(finalrels)
         candidatetokens += [x for x,y in finalrels]
         candidatevectors += [y for x,y in finalrels]
-        return candidatetokens,candidatevectors,ents,rels
+        return candidatetokens,candidatevectors,ents,rels,finalentities,finalrels
         
         
         

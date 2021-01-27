@@ -160,7 +160,8 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 
 def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         learning_rate = CustomSchedule(params["model_depth"])
-        optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
+        #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
+        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.1)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 

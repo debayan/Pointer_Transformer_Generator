@@ -4,7 +4,13 @@ from build_eval_test import build_model, train, test
 import logging
 import os
 
-
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
 
 def main():
 
@@ -23,7 +29,7 @@ def main():
         
         parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=1, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=5, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
@@ -31,7 +37,7 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=80000, help="Max steps for training", type=int)
+        parser.add_argument("--max_steps",default=800000, help="Max steps for training", type=int)
                 
         parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         
