@@ -30,12 +30,12 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
 
 
 def loss_function(loss_object, real, pred):
-#        mask = tf.math.logical_not(tf.math.equal(real, 0))
-        #loss_ = scce_with_ls(pred,real)
+        mask = tf.math.logical_not(tf.math.equal(real, 0))
+        loss_ = scce_with_ls(pred,real)
         loss_ = loss_object(real, pred)
 
-#        mask = tf.cast(mask, dtype=loss_.dtype)
-#        loss_ *= mask
+        mask = tf.cast(mask, dtype=loss_.dtype)
+        loss_ *= mask
 
         return tf.reduce_mean(loss_)
 
@@ -131,13 +131,27 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 #                            answer_ = ' '.join(words)
 #                            print("answer: ", answer_)
                         words = []
-                        for x in list(nonbeamanswer[1:].numpy()):
+                        prev = None
+                        nonbeamans = list(nonbeamanswer[1:].numpy())
+                        for idx,x in enumerate(nonbeamans):
                             if x==3 or x==1:
                                 break
+                            if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
+                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
+                                    continue
+                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
+                                    continue
+
                             if x < vocab.size():
+                                if vocab.id_to_word(x) == prev:
+                                    continue
                                 words.append(vocab.id_to_word(x))
+                                prev = vocab.id_to_word(x) #n-gram blocking where n = 1
                             else:
+                                if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
+                                    continue
                                 words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
+                                prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
                         nonbeamanswer_ = ' '.join(words)
                         qcount += 1
                         #totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
@@ -161,7 +175,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
-        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.1)
+        optimizer = tf.keras.optimizers.Adam(0.0005, beta_1=0.9, beta_2=0.98, epsilon=0.01)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
