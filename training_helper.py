@@ -64,7 +64,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         qcount = 0
         totalfuzz = 0.0
         totalfuzznonbeam = 0.0
-        if batchcount%100 == 0 and batchcount > 1:
+        if batchcount%1000 == 0 and batchcount > 1:
             vocab = Vocab(params['vocab_path'], params['vocab_size'])
 
             for testidx,testbatch in enumerate(testbatcher):
@@ -137,26 +137,26 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             if x==3 or x==1:
                                 break
 
-                            if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
-                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
-                                    continue
-                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
-                                    continue
+                            #if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
+                                #if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
+                                #    continue
+                                #if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
+                                #    continue
 
                             if x < vocab.size():
                                 if vocab.id_to_word(x) == prev:
                                     continue
                                 words.append(vocab.id_to_word(x))
-                                prev = vocab.id_to_word(x) #n-gram blocking where n = 1
+                                #prev = vocab.id_to_word(x) #n-gram blocking where n = 1
                             else:
                                 if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
                                     continue
-                                if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
-                                    continue
-                                if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
-                                    continue
+                                #if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
+                                ##    continue
+                                #if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
+                                #    continue
                                 words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
-                                prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
+                                #prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
                         nonbeamanswer_ = ' '.join(words)
                         qcount += 1
                         #totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
@@ -193,7 +193,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                 t0 = time.time()
                                 valfuzz,qcount = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
                                 t1 = time.time()
-                                if idx%100 == 0 and idx > 1:
+                                if idx%1000 == 0 and idx > 1:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
                                     if valfuzz > bestfuzz:
                                         bestfuzz = valfuzz
