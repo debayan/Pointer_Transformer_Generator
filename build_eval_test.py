@@ -5,6 +5,7 @@ from predict_helper import predict
 from entitybatcher import entitybatcher
 from transformer import Transformer
 import os
+import sys
 
 
 
@@ -72,4 +73,5 @@ def test(params):
         ckpt = tf.train.Checkpoint(step=tf.Variable(0), transformer=model)
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
+        print("Restored from {}".format(ckpt_manager.latest_checkpoint))
         pred = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
