@@ -40,9 +40,15 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         #enc_len = len(question_words)
                         enc_input_mask = [vocab.word_to_id(w) for w in question_words]
                         enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
+
+                        for idx,ent in enumerate(ents):
+                            intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(ents.index(ent)+1))
+                        for idx,rel in enumerate(rels):
+                            intermediate_sparql = intermediate_sparql.replace(rel,'predpos@@'+str(rels.index(rel)+1))
+                        sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
+                        intermediate_sparql += sparqladd
                      
-                        intsparql_words_ = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').replace("'"," ' ").lower().split()
-                        intsparql_words = [x for x in intsparql_words_]
+                        intsparql_words = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').replace("'"," ' ").lower().split()
                         intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                         intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
                        
