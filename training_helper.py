@@ -137,26 +137,26 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             if x==3 or x==1:
                                 break
 
-                            #if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
-                            #    if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
-                            #        continue
-                            #    if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
-                            #        continue
+                            if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
+                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
+                                    continue
+                                if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
+                                    continue
 
                             if x < vocab.size():
-                                #if vocab.id_to_word(x) == prev:
-                                #    continue
+                                if vocab.id_to_word(x) == prev:
+                                    continue
                                 words.append(vocab.id_to_word(x))
-                                #prev = vocab.id_to_word(x) #n-gram blocking where n = 1
+                                prev = vocab.id_to_word(x) #n-gram blocking where n = 1
                             else:
-                                #if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
-                                #    continue
-                                #if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
-                                #    continue
-                                #if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
-                                #    continue
+                                if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
+                                    continue
+                                if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
+                                    continue
+                                if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
+                                    continue
                                 words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
-                                #prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
+                                prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
                         nonbeamanswer_ = ' '.join(words)
                         qcount += 1
                         #totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
@@ -166,7 +166,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         #print("raw answer: ",list(answer.numpy()))
                         print("target: ", target_)
                         #print("answer: ", answer_)
-                        print("nonbeamanswer: ", nonbeamanswer_)
+                        print("answer: ", nonbeamanswer_)
                         #print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
                         print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
@@ -181,7 +181,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
-        optimizer = tf.keras.optimizers.Adam(0.0002, beta_1=0.9, beta_2=0.98, epsilon=0.01)
+        optimizer = tf.keras.optimizers.Adam(0.0005, beta_1=0.9, beta_2=0.98, epsilon=0.01)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
@@ -201,7 +201,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                         print("Best val fuzz so far: %f"%(valfuzz))
                                         ckpt_manager.save(checkpoint_number=int(ckpt.step))
                                         print("Saved checkpoint for step {}".format(int(ckpt.step)))
-                                    print("epoch {} step {}, time : {}, loss: {}".format(epoch,int(ckpt.step), t1-t0, train_loss_metric.result()))
+                                print("epoch {} step {}, time : {}, loss: {}".format(epoch,int(ckpt.step), t1-t0, train_loss_metric.result()))
                                 ckpt.step.assign_add(1)
                         
         except KeyboardInterrupt:
