@@ -1,18 +1,21 @@
 import sys,os,json
+from fuzzywuzzy import fuzz
 
 
 def extractpredentrels(line):
-    predents = set()
-    predrels = set()
-    entsrels = line.split('[sep]')[1:]
-    for phrase in entsrels:
-        for word in phrase.split(' '):
-            if word:
-                if word[0] == 'p':
-                    predrels.add(word)
-                if word[0] == 'q':
-                    predents.add(word)
-    return predents,predrels
+	predents = set()
+	predrels = set()
+	q = ''
+	q = line.split('[sep]')[0]
+	entsrels = line.split('[sep]')[1:]
+	for phrase in entsrels:
+		for word in phrase.split(' '):
+			if word:
+				if word[0] == 'p':
+					predrels.add(word)
+				if word[0] == 'q':
+					predents.add(word)
+	return q,predents,predrels
 
 f = open(sys.argv[1])
 lines = f.readlines()
@@ -22,12 +25,14 @@ fne = 0
 tpr = 0
 fpr = 0
 fnr = 0
+totalfuzz = 0
+count = 0
 for idx,line in enumerate(lines):
 	if 'uid:' in line:
 		print(line) #uid
 		print(lines[idx+1]) #question
 		print(lines[idx+2]) #target
-		print(lines[idx+3])
+		print(lines[idx+3]) #answer
 		try:
 			question,ents,rels = lines[idx+2].strip().split('[sep]')
 		except Exception as err:
@@ -38,7 +43,9 @@ for idx,line in enumerate(lines):
 		[goldents.add(x) for x in ents.split(' ') if x]
 		[goldrels.add(x) for x in rels.split(' ') if x]
 		#print(ents,rels,goldents,goldrels)
-		predents, predrels = extractpredentrels(lines[idx+3].strip())
+		predq,predents, predrels = extractpredentrels(lines[idx+3].strip())
+		totalfuzz += fuzz.ratio(predq,question)
+		count += 1
 		print("goldents: ",goldents)
 		print("goldrels: ",goldrels)
 		print("predents: ",predents)
@@ -69,3 +76,4 @@ for idx,line in enumerate(lines):
 		recallr = tpr/float(tpr+fnr+0.001)
 		f1r = 2*(precisionr*recallr)/(precisionr+recallr+0.001)
 		print("precisionr: %f recallr: %f f1r: %f"%(precisionr, recallr, f1r))
+		print("question fuzz: ",float(totalfuzz)/count)
