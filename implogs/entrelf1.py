@@ -82,3 +82,4 @@ for idx,line in enumerate(lines):
 		print("precisionr: %f recallr: %f f1r: %f"%(precisionr, recallr, f1r))
 		print("question fuzz: ",float(totalfuzz)/count)
 		print("exact query match %d out of %d"%(exactmatch,count))
+
