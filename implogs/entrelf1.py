@@ -27,6 +27,7 @@ fpr = 0
 fnr = 0
 totalfuzz = 0
 count = 0
+exactmatch = 0
 for idx,line in enumerate(lines):
 	if 'uid:' in line:
 		print(line) #uid
@@ -45,6 +46,9 @@ for idx,line in enumerate(lines):
 		#print(ents,rels,goldents,goldrels)
 		predq,predents, predrels = extractpredentrels(lines[idx+3].strip())
 		totalfuzz += fuzz.ratio(predq,question)
+		if predq.split(' ')[2:-1] == question.split(' ')[2:-1]:
+			print("exact match")
+			exactmatch += 1
 		count += 1
 		print("goldents: ",goldents)
 		print("goldrels: ",goldrels)
@@ -77,3 +81,4 @@ for idx,line in enumerate(lines):
 		f1r = 2*(precisionr*recallr)/(precisionr+recallr+0.001)
 		print("precisionr: %f recallr: %f f1r: %f"%(precisionr, recallr, f1r))
 		print("question fuzz: ",float(totalfuzz)/count)
+		print("exact query match %d out of %d"%(exactmatch,count))
