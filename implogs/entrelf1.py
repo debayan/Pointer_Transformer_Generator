@@ -28,6 +28,7 @@ fnr = 0
 totalfuzz = 0
 count = 0
 exactmatch = 0
+
 for idx,line in enumerate(lines):
 	if 'uid:' in line:
 		print(line) #uid
