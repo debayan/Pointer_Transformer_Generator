@@ -47,25 +47,25 @@ def predict(featuress, params, model):
                 for idx,x in enumerate(nonbeamans):
                     if x==3 or x==1:
                         break
-                    #if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
-                    #    if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
-                    #        continue
-                    #    if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
-                    #        continue
+                    if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
+                        if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
+                            continue
+                        if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
+                            continue
                     if x < vocab.size():
-                        #if vocab.id_to_word(x) == prev:
-                        #    continue
+                        if vocab.id_to_word(x) == prev:
+                            continue
                         words.append(vocab.id_to_word(x))
-                        #prev = vocab.id_to_word(x) #n-gram blocking where n = 1
+                        prev = vocab.id_to_word(x) #n-gram blocking where n = 1
                     else:
-                        #if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
-                        #    continue
-                        #if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
-                        #    continue
-                        #if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
-                        #    continue
+                        if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
+                            continue
+                        if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
+                            continue
+                        if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
+                            continue
                         words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
-                        #prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
+                        prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
                 answer_ = ' '.join(words)
                 qcount += 1
                 totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())

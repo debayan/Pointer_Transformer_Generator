@@ -20,7 +20,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         intermediate_sparql = linearr[8]
                         if not question or not intermediate_sparql:
                                 continue
-                        question = question.replace('{','').replace('}','')
+                        question = question.replace('{','').replace('}','').replace('?',' ?')
                         intermediate_sparql = intermediate_sparql.replace(","," , ").replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')#.replace('.',' . ')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
