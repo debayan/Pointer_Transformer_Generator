@@ -20,13 +20,16 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         intermediate_sparql = linearr[8]
                         if not question or not intermediate_sparql:
                                 continue
+                        #remove parts after [SEP] for experimenting with non ent rel input
                         question = question.replace('{','').replace('}','').replace('?',' ?')
                         intermediate_sparql = intermediate_sparql.replace(","," , ").replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')#.replace('.',' . ')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
                         questiontokens = linearr[2]
-                        questionvectors = linearr[3]
+                        idxrem = questiontokens.index('[SEP]')
+                        questiontokens = questiontokens[:idxrem]
+                        questionvectors = linearr[3][:idxrem]
                         ents = linearr[4]
                         rels = linearr[5]
                         finents = linearr[6]
@@ -45,8 +48,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                             intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(ents.index(ent)+1))
                         for idx,rel in enumerate(rels):
                             intermediate_sparql = intermediate_sparql.replace(rel,'predpos@@'+str(rels.index(rel)+1))
-                        sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
-                        intermediate_sparql += sparqladd
+                        #sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
+                        #intermediate_sparql += sparqladd
                      
                         intsparql_words = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').replace("'"," ' ").lower().split()
                         intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
