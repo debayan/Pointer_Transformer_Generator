@@ -21,8 +21,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         if not question or not intermediate_sparql:
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
-                        question = question.replace('{','').replace('}','').replace('?',' ?')
-                        intermediate_sparql = intermediate_sparql.replace(","," , ").replace('{',' { ').replace('}',' } ').replace('(',' ( ').replace(')',' ) ')#.replace('.',' . ')
+                        question = question#.replace('{','').replace('}','').replace('?',' ?')
+                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
