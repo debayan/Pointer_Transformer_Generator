@@ -22,7 +22,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
                         question = question#.replace('{','').replace('}','').replace('?',' ?')
-                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .')
+                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
@@ -51,7 +51,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         #sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
                         #intermediate_sparql += sparqladd
                      
-                        intsparql_words = intermediate_sparql.replace('wd:','').replace('wdt:','').replace('ps:','').replace('pq:','').replace('p:','').replace("'"," ' ").lower().split()
+                        intsparql_words = intermediate_sparql.replace("'"," ' ").lower().split()
                         intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                         intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
                        
