@@ -106,7 +106,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                                             
                     idx = 0
                     for question,nonbeamanswer,target,uid,oov in zip(testfeatures["question"],output,testlabels["dec_target"],testfeatures["uid"],testfeatures['question_oovs']):
-                        print("uid: ",int(uid.numpy()))
+                        print("uid: ",uid)
                         print("question: ", question.numpy().decode('utf-8'))
 #                        answer = outputdict[idx]
                         idx+=1

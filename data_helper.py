@@ -57,19 +57,19 @@ class Data_Helper:
                 unk_id = vocab.word_to_id(vocab.UNKNOWN_TOKEN)
                 for w in article_words:
                         #print(w,len(w))
-                        if len(w) > 2:
-                                if w[0] == "'" and w[-1] == "'" : #sparql specific hack for handling questions like "which cities start with the letter L "
-                                        w = w[1:-1]
-                                        #print("a2i singlequote: ",article_words,w)
-                                if w[0] == '"' and w[-1] == '"':
-                                        w = w[1:-1]
-                                        #print("a2i doubequote: ",article_words,w)
-                        
-                                try:                             #to handle questions like "which buildings have a height larger than 200.50 meters"
-                                        w = str(float(w))
-                                        #print("a2i float: ",article_words,w)            
-                                except ValueError:
-                                        pass
+#                        if len(w) > 2:
+#                                if w[0] == "'" and w[-1] == "'" : #sparql specific hack for handling questions like "which cities start with the letter L "
+#                                        w = w[1:-1]
+#                                        #print("a2i singlequote: ",article_words,w)
+#                                if w[0] == '"' and w[-1] == '"':
+#                                        w = w[1:-1]
+#                                        #print("a2i doubequote: ",article_words,w)
+#                        
+#                                try:                             #to handle questions like "which buildings have a height larger than 200.50 meters"
+#                                        w = str(float(w))
+#                                        #print("a2i float: ",article_words,w)            
+#                                except ValueError:
+#                                        pass
                         i = vocab.word_to_id(w)
                         if i == unk_id: # If w is OOV
                                 if w not in oovs: # Add to list of OOVs
@@ -86,19 +86,19 @@ class Data_Helper:
                 unk_id = vocab.word_to_id(vocab.UNKNOWN_TOKEN)
                 for w in abstract_words:
                         #print(w,len(w))
-                        if len(w) > 2:
-                                if w[0] == "'" and w[-1] == "'": #sparql specific hack for handling questions like "which cities start with the letter L "
-                                        w = w[1:-1]
-                                        #print("ab2i singlequote: ",abstract_words,w)
-                                if w[0] == '"' and w[-1] == '"':
-                                        w = w[1:-1]
-                                        #print("ab2i doubequote: ",abstract_words,w)
-                        
-                                try:                             #to handle questions like "which buildings have a height larger than 200.50 meters"
-                                        w = str(float(w))
-                                        #print("ab2i float: ",abstract_words,w)
-                                except ValueError:
-                                        pass
+#                        if len(w) > 2:
+#                                if w[0] == "'" and w[-1] == "'": #sparql specific hack for handling questions like "which cities start with the letter L "
+#                                        w = w[1:-1]
+#                                        #print("ab2i singlequote: ",abstract_words,w)
+#                                if w[0] == '"' and w[-1] == '"':
+#                                        w = w[1:-1]
+#                                        #print("ab2i doubequote: ",abstract_words,w)
+#                        
+#                                try:                             #to handle questions like "which buildings have a height larger than 200.50 meters"
+#                                        w = str(float(w))
+#                                        #print("ab2i float: ",abstract_words,w)
+#                                except ValueError:
+#                                        pass
                         i = vocab.word_to_id(w)
                         if i == unk_id: # If w is an OOV word
                                 if w in article_oovs: # If w is an in-article OOV

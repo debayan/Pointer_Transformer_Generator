@@ -22,7 +22,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
                         question = question#.replace('{','').replace('}','').replace('?',' ?')
-                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
+                        intermediate_sparql = intermediate_sparql.replace('\"',' " ').replace('^^',' ^^ ')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
@@ -51,7 +51,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         #sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
                         #intermediate_sparql += sparqladd
                      
-                        intsparql_words = intermediate_sparql.replace("'"," ' ").lower().split()
+                        intsparql_words = intermediate_sparql.lower().split()
                         intsparql_ids = [vocab.word_to_id(w) for w in intsparql_words]
                         intsparql_ids_extend_vocab = Data_Helper.abstract_to_ids(intsparql_words, vocab, question_oovs)
                        
@@ -87,7 +87,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
 def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, training):
         dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, training],
                                                                                         output_types = {
-                                                                                                "uid":tf.int32,
+                                                                                                "uid":tf.string,
                                                                                                 "enc_len":tf.int32,
                                                                                                 "enc_input" : tf.float32,
                                                                                                 "enc_input_mask" : tf.int32,
@@ -130,7 +130,7 @@ def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_le
                                                                                                 "rels": [None]
                                                                                                 }),
                                                                                         padding_values={"enc_len":-1,
-                                                                                                "uid": -1,
+                                                                                                "uid": b'',
                                                                                                 "enc_input" : -1.0,
                                                                                                 "enc_input_mask" : -1,
                                                                                                 "enc_input_extend_vocab"  : 1,
