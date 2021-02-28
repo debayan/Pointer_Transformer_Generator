@@ -38,6 +38,7 @@ class Decoder(tf.keras.layers.Layer):
                 self.Wh = tf.keras.layers.Dense(1)
                 self.Ws = tf.keras.layers.Dense(1)
                 self.Wx = tf.keras.layers.Dense(1)
+                self.Wc = tf.keras.layers.Dense(1)
                 self.V = tf.keras.layers.Dense(1)
 
 
@@ -125,4 +126,4 @@ class Transformer(tf.keras.Model):
                 final_dists =  _calc_final_dist( extended_inp, tf.unstack(output, axis=1) , tf.unstack(attn_dists, axis=1), tf.unstack(p_gens, axis=1), max_oov_len, self.vocab_size, self.batch_size)
                 final_output =tf.stack(final_dists, axis=1)
 
-                return final_output, attention_weights
+                return final_output, attention_weights, p_gens
