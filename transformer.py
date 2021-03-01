@@ -126,4 +126,4 @@ class Transformer(tf.keras.Model):
                 final_dists =  _calc_final_dist( extended_inp, tf.unstack(output, axis=1) , tf.unstack(attn_dists, axis=1), tf.unstack(p_gens, axis=1), max_oov_len, self.vocab_size, self.batch_size)
                 final_output =tf.stack(final_dists, axis=1)
 
-                return final_output, attention_weights, p_gens
+                return final_output, attention_weights

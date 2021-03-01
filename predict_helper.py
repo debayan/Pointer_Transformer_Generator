@@ -8,16 +8,17 @@ def predict(featuress, params, model):
     vocab = Vocab(params['vocab_path'], params['vocab_size']) 
     totalfuzz = 0.0
     qcount = 0
-    em = 0 #exact match
+    em = 0
+    retarr = []
     for features_ in featuress:
         features = features_[0]
         labels = features_[1]
         questions = [q.numpy().decode('utf-8') for q in features["question"]]
-        output = tf.tile([[2]], [params["batch_size"], 1]) # 2 = start_decoding
+        output = tf.tile([[2]], [len(questions), 1]) # 2 = start_decoding
         for i in range(params["max_dec_len"]):
             enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input_mask"], output)
             # predictions.shape == (batch_size, seq_len, vocab_size)
-            predictions, attention_weights, p_gens = model(questions,features["enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
+            predictions, attention_weights = model(questions,features["enc_input"],features["extended_enc_input"], features["max_oov_len"], output, training=False, 
                            enc_padding_mask=enc_padding_mask, 
                            look_ahead_mask=combined_mask,
                            dec_padding_mask=dec_padding_mask)
@@ -29,7 +30,8 @@ def predict(featuress, params, model):
             # concatentate the predicted_id to the output which is given to the decoder
             # as its input.
             output = tf.concat([output, predicted_id], axis=-1)
-        for answer,target,uid,question,oov in zip(output,labels["dec_target"],features["uid"],features["question"],features["question_oovs"]):
+        for answer,target,uid,question,oov,ents,rels in zip(output,labels["dec_target"],features["uid"],features["question"],features["question_oovs"],features['ents'],features['rels']):
+            resd = {}
             try:
                 answerclean = answer[1:]
                 words = []
@@ -42,44 +44,37 @@ def predict(featuress, params, model):
                         words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
                 target_ = ' '.join(words)
     
-                prev = None
                 nonbeamans = list(answerclean.numpy())
                 words=[]
                 for idx,x in enumerate(nonbeamans):
                     if x==3 or x==1:
                         break
-#                    if idx >= 3:#n-gram blocking where n = 2, dont let things like 'q123 p124 q123 p124' repeat
-#                        if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx+1] == nonbeamans[idx-1]:
-#                            continue
-#                        if nonbeamans[idx] == nonbeamans[idx-2] and nonbeamans[idx-1] == nonbeamans[idx-3]:
-#                            continue
                     if x < vocab.size():
-                        if vocab.id_to_word(x) == prev:
-                            continue
                         words.append(vocab.id_to_word(x))
-#                        prev = vocab.id_to_word(x) #n-gram blocking where n = 1
                     else:
-#                        if list(oov.numpy())[x - vocab.size()].decode('utf-8') == prev: #n-gram blocking where n = 1
-#                            continue
-
-#                        if prev[0] == 'p' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'p': # dont let predicates repeat
-#                            continue
-#                        if prev[0] == 'q' and list(oov.numpy())[x - vocab.size()].decode('utf-8')[0] == 'q': # dont let entities repeat
-#                            continue
                         words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
-#                        prev = list(oov.numpy())[x - vocab.size()].decode('utf-8')
                 answer_ = ' '.join(words)
                 qcount += 1
                 totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
-                if target_.lower().replace('?vr0','?vr1').split() == answer_.lower().replace('?vr0','?vr1').split():
+                if target_.lower() == answer_.lower():
                     em += 1
-                print("uid: ",uid)
+                print("uid: ",uid.numpy())
                 print("question: ", question.numpy().decode('utf-8'))
                 print("target: ", target_)
-                print("answer: ", answer_,'\n')
-                print("exact match: ",em)
+                print("answer: ", answer_)
+                print("goldents: ",[ent.decode('utf-8') for ent in ents.numpy()])
+                print("goldrels: ",[rel.decode('utf-8') for rel in rels.numpy()])
+                print("exactmatch: ",em)
+                resd['uid'] = uid.numpy()
+                resd['question'] = question.numpy().decode('utf-8')
+                resd['target'] = target_
+                resd['answer'] = answer_
+                resd['goldents'] = [ent.decode('utf-8') for ent in ents.numpy()]
+                resd['goldrels'] = [rel.decode('utf-8') for rel in rels.numpy()]
+                retarr.append(resd) 
             except Exception as err:
                 print(err)
+                retarr.append(resd)
                 continue
         print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
-    return output, attention_weights
+    return output, attention_weights, retarr
