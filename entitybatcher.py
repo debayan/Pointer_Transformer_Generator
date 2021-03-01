@@ -28,8 +28,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                          
                         questiontokens = linearr[2]
                         idxrem = questiontokens.index('[SEP]')
-                        questiontokens = questiontokens[:idxrem]
-                        questionvectors = linearr[3][:idxrem]
+                        #questiontokens = questiontokens[:idxrem]
+                        questionvectors = linearr[3]#[:idxrem]
                         ents = linearr[4]
                         rels = linearr[5]
                         finents = linearr[6]
