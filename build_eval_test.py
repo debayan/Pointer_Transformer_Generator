@@ -6,6 +6,7 @@ from entitybatcher import entitybatcher
 from transformer import Transformer
 import os
 import sys
+import json
 
 
 
@@ -74,4 +75,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        pred = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
+        out,att,retarr = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
+        f = open(params["model_dir"].strip("/")+'out.json','w')
+        f.write(json.dumps(retarr,indent=4,sort_keys=True))
+        f.close()
