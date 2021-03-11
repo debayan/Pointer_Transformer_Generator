@@ -27,9 +27,11 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
                         questiontokens = linearr[2]
-                        idxrem = questiontokens.index('[SEP]')
+                        sepindices = [i for i, x in enumerate(questiontokens) if x == '[SEP]']
+                        relsep = sepindices[-1]
+                        questiontokens = questiontokens[:relsep]
                         #questiontokens = questiontokens[:idxrem]
-                        questionvectors = linearr[3]#[:idxrem]
+                        questionvectors = linearr[3][:relsep]#[:idxrem]
                         ents = linearr[4]
                         rels = linearr[5]
                         finents = linearr[6]
