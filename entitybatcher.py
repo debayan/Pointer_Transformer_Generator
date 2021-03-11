@@ -28,10 +28,9 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                          
                         questiontokens = linearr[2]
                         sepindices = [i for i, x in enumerate(questiontokens) if x == '[SEP]']
-                        entsep = sepindices[-2]
-                        relsep = sepindices[-1]
-                        questiontokens = questiontokens[:entsep]+questiontokens[relsep:]
-                        questionvectors = linearr[3][:entsep]+linearr[3][relsep:]
+                        questiontokens = questiontokens[:sepindices[0]]
+                        questionvectors = linearr[3][:sepindices[0]]
+                      
                         ents = linearr[4]
                         rels = linearr[5]
                         finents = linearr[6]
