@@ -188,7 +188,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
         try:
                 bestfuzz = 0.0
                 epoch = 0
-                while int(ckpt.step) < params["max_steps"]:
+                while epoch < params["max_epochs"]:#while int(ckpt.step) < params["max_steps"]:
                         epoch += 1
                         for idx,batch in enumerate(batcher):
                                 t0 = time.time()

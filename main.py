@@ -21,7 +21,7 @@ def main():
         
         parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
-        parser.add_argument("--batch_size", default=16, help="batch size", type=int)
+        parser.add_argument("--batch_size", default=32, help="batch size", type=int)
         
         parser.add_argument("--vocab_size", default=256, help="Vocabulary size", type=int)
         
@@ -38,6 +38,8 @@ def main():
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
         parser.add_argument("--max_steps",default=800000, help="Max steps for training", type=int)
+       
+        parser.add_argument("--max_epochs", default=500, help="Max epochs during training", type=int)
                 
         parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         
