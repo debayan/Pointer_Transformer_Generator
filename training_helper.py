@@ -170,8 +170,6 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         #print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
                         print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
-                    if testidx >= 4:
-                        break
                 except Exception as err:
                         print("er: ",err)             
         #return testlossfloat
