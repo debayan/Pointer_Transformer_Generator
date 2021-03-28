@@ -1,0 +1,1 @@
+{"select": 3, "distinct": 4, "?vr0": 5, "where": 6, "{": 7, "<entpos@@1>": 8, "<predpos@@1>": 9, "?vr1": 10, ".": 11, "<predpos@@2>": 12, "}": 13, "count": 14, "(": 15, ")": 16, "<entpos@@2>": 17, "<predpos@@3>": 18, "ask": 19, "[UNK]": 20, "<entpos@@3>": 21}
