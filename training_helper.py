@@ -194,7 +194,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                                 t0 = time.time()
                                 valfuzz = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher, ckpt.step)
                                 t1 = time.time()
-                                if idx%100 == 0 and idx > 1:
+                                if ckpt.step%100 == 0 and ckpt.step > 1:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)
                                     if valfuzz > bestfuzz:
                                         bestfuzz = valfuzz
