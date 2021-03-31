@@ -40,7 +40,7 @@ def loss_function(loss_object, real, pred):
         return tf.reduce_mean(loss_)
 
 
-def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher):
+def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep):
         enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input_mask"], labels["dec_input"])
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
@@ -64,7 +64,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         qcount = 0
         totalfuzz = 0.0
         totalfuzznonbeam = 0.0
-        if batchcount%100 == 0 and batchcount > 1:
+        if ckptstep%100 == 0 and ckptstep > 1:
             vocab = Vocab(params['vocab_path'], params['vocab_size'])
 
             for testidx,testbatch in enumerate(testbatcher):
@@ -170,8 +170,8 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         #print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
                         print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
-                    if testidx >= 4:
-                        break
+                    #if testidx >= 4:
+                    #    break
                 except Exception as err:
                         print("er: ",err)             
         #return testlossfloat
@@ -192,7 +192,7 @@ def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):
                         epoch += 1
                         for idx,batch in enumerate(batcher):
                                 t0 = time.time()
-                                valfuzz = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher)
+                                valfuzz = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, testbatcher, ckpt.step)
                                 t1 = time.time()
                                 if idx%100 == 0 and idx > 1:
                                     print("valfuzz - bestfuzz : ",valfuzz,bestfuzz)

@@ -3,10 +3,6 @@ import glob
 import json
 import sys
 from data_helper import Vocab, Data_Helper
-from vectorisermix import Vectoriser
-
-v = Vectoriser('wikidatapropembeddings.json')
-
 
 
 def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
@@ -22,7 +18,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
                         question = question#.replace('{','').replace('}','').replace('?',' ?')
-                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
+                        intermediate_sparql = intermediate_sparql.replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
@@ -43,7 +39,6 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         #enc_len = len(question_words)
                         enc_input_mask = [vocab.word_to_id(w) for w in question_words]
                         enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
-
                         for idx,ent in enumerate(ents):
                             intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(ents.index(ent)+1))
                         for idx,rel in enumerate(rels):
