@@ -3,10 +3,68 @@ import sys
 from utils import create_masks
 from data_helper import Vocab
 from fuzzywuzzy import fuzz
+import requests
+
+
+def calcf1(target,answer):
+    if target == answer:
+        return 1.0
+    try:
+        tb = target['results']['bindings']
+        rb = answer['results']['bindings']
+        tp = 0
+        fp = 0
+        fn = 0
+        for r in rb:
+            if r in tb:
+                tp += 1
+            else:
+                fp += 1
+        for t in tb:
+            if t not in rb:
+                fn += 1
+        precision = tp/float(tp+fp+0.001)
+        recall = tp/float(tp+fn+0.001)
+        f1 = 2*(precision*recall)/(precision+recall+0.001)
+        print("f1: ",f1)
+        return f1
+    except Exception as err:
+        print(err)
+    try:
+        if target['boolean'] == answer['boolean']:
+            print("boolean true/false match")
+            f1 = 1.0
+            print("f1: ",f1)
+        if target['boolean'] != answer['boolean']:
+            print("boolean true/false mismatch")
+            f1 = 0.0
+            print("f1: ",f1)
+            return f1
+    except Exception as err:
+        f1 = 0.0
+        print("f1: ",f1)
+        return f1
+
+def hitkg(query):
+    try:
+        url = 'http://ltcpu1:8892/sparql/'
+        #print(query)
+        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> ' + query
+        r = requests.get(url, params={'format': 'json', 'query': query})
+        json_format = r.json()
+        #print(entid,json_format)
+        results = json_format
+        return results
+    except Exception as err:
+        print(err)
+        return ''
+
+
 
 def predict(featuress, params, model):
     vocab = Vocab(params['vocab_path'], params['vocab_size']) 
     totalfuzz = 0.0
+    totf1 = 0
     qcount = 0
     em = 0
     retarr = []
@@ -55,22 +113,45 @@ def predict(featuress, params, model):
                         words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
                 answer_ = ' '.join(words)
                 qcount += 1
+                ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
+                rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
                 totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
                 if target_.lower() == answer_.lower():
                     em += 1
+                for idx1,ent in enumerate(ents_):
+                    if ent:
+                        target_ = target_.replace('entpos@@'+str(idx1+1),ent)
+                for idx1,rel in enumerate(rels_):
+                    if rel:
+                        target_ = target_.replace('predpos@@'+str(idx1+1),rel)
+                resulttarget = hitkg(target_)
+                for idx1,ent in enumerate(ents_):
+                    if ent:
+                        answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
+                for idx1,rel in enumerate(rels_):
+                    if rel:
+                        answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
+                resultanswer = hitkg(answer_)
+                f1  = calcf1(resulttarget,resultanswer)
+                totf1 += f1
+                avgf1 = totf1/float(qcount)
                 print("uid: ",int(uid.numpy()))
                 print("question: ", question.numpy().decode('utf-8'))
                 print("target: ", target_)
                 print("answer: ", answer_)
-                print("goldents: ",[ent.decode('utf-8') for ent in ents.numpy()])
-                print("goldrels: ",[rel.decode('utf-8') for rel in rels.numpy()])
+                print("goldents: ", ents_)
+                print("goldrels: ", rels_)
                 print("exactmatch: ",em)
+                print("targetkg: ",resulttarget)
+                print("answerkg: ",resultanswer)
+                print("f1 = ",f1)
+                print("avgf1 = ",avgf1)
                 resd['uid'] = int(uid.numpy())
                 resd['question'] = question.numpy().decode('utf-8')
                 resd['target'] = target_
                 resd['answer'] = answer_
-                resd['goldents'] = [ent.decode('utf-8') for ent in ents.numpy()]
-                resd['goldrels'] = [rel.decode('utf-8') for rel in rels.numpy()]
+                resd['goldents'] = ents_
+                resd['goldrels'] = rels_
                 retarr.append(resd) 
             except Exception as err:
                 print(err)
