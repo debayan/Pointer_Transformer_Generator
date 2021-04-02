@@ -172,7 +172,6 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                                 words.append(list(oov.numpy())[x - vocab.size()].decode('utf-8'))
                         nonbeamanswer_ = ' '.join(words)
                         answer_ = nonbeamanswer_
-                        qcount += 1
                         totalfuzznonbeam += fuzz.ratio(target_.lower(), nonbeamanswer_.lower())
                         ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
                         rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
@@ -183,6 +182,8 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                             if rel:
                                 target_ = target_.replace('predpos@@'+str(idx1+1),rel)
                         resulttarget = hitkg(target_)
+                        if not resulttarget:
+                            continue
                         for idx1,ent in enumerate(ents_):
                             if ent:
                                 answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
@@ -192,6 +193,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         resultanswer = hitkg(answer_)
                         f1  = calcf1(resulttarget,resultanswer)
                         totf1 += f1
+                        qcount += 1
                         avgf1 = totf1/float(qcount)
                         print("target: ", target_)
                         print("answer: ", answer_)
@@ -199,7 +201,8 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         print("answer: ",resultanswer)
                         print("f1: ",f1)
                         print("avgf1: ",avgf1)
-                        print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
+                        print("qcount: ",qcount)
+                        #print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
                     #if testidx >= 4:
                     #    break

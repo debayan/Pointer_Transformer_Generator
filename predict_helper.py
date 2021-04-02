@@ -118,6 +118,8 @@ def predict(featuress, params, model):
                 totalfuzz += fuzz.ratio(target_.lower(), answer_.lower())
                 if target_.lower() == answer_.lower():
                     em += 1
+                targettemplate = target_
+                answertemplate = answer_
                 for idx1,ent in enumerate(ents_):
                     if ent:
                         target_ = target_.replace('entpos@@'+str(idx1+1),ent)
@@ -139,6 +141,8 @@ def predict(featuress, params, model):
                 print("question: ", question.numpy().decode('utf-8'))
                 print("target: ", target_)
                 print("answer: ", answer_)
+                print("targettemplate: ",targettemplate)
+                print("answertemplate: ",answertemplate)
                 print("goldents: ", ents_)
                 print("goldrels: ", rels_)
                 print("exactmatch: ",em)
@@ -150,6 +154,8 @@ def predict(featuress, params, model):
                 resd['question'] = question.numpy().decode('utf-8')
                 resd['target'] = target_
                 resd['answer'] = answer_
+                resd['targettemplate'] = targettemplate
+                resd['answertemplate'] = answertemplate
                 resd['goldents'] = ents_
                 resd['goldrels'] = rels_
                 retarr.append(resd) 
