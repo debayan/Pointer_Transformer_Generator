@@ -146,7 +146,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         
                     idx = 0
                     for question,nonbeamanswer,target,uid,oov,ents,rels in zip(testfeatures["question"],output,testlabels["dec_target"],testfeatures["uid"],testfeatures['question_oovs'],testfeatures['ents'],testfeatures['rels']):
-                        print("uid: ",int(uid.numpy()))
+                        #print("uid: ",int(uid.numpy()))
                         print("question: ", question.numpy().decode('utf-8'))
 #                        answer = outputdict[idx]
                         idx+=1
@@ -173,44 +173,44 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         nonbeamanswer_ = ' '.join(words)
                         answer_ = nonbeamanswer_
                         totalfuzznonbeam += fuzz.ratio(target_.lower(), nonbeamanswer_.lower())
-                        ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
-                        rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
-                        for idx1,ent in enumerate(ents_):
-                            if ent:
-                                target_ = target_.replace('entpos@@'+str(idx1+1),ent)
-                        for idx1,rel in enumerate(rels_):
-                            if rel:
-                                target_ = target_.replace('predpos@@'+str(idx1+1),rel)
-                        resulttarget = hitkg(target_)
-                        if not resulttarget:
-                            continue
-                        for idx1,ent in enumerate(ents_):
-                            if ent:
-                                answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
-                        for idx1,rel in enumerate(rels_):
-                            if rel:
-                                answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
-                        resultanswer = hitkg(answer_)
-                        f1  = calcf1(resulttarget,resultanswer)
-                        totf1 += f1
+#                        ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
+#                        rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
+#                        for idx1,ent in enumerate(ents_):
+#                            if ent:
+#                                target_ = target_.replace('entpos@@'+str(idx1+1),ent)
+#                        for idx1,rel in enumerate(rels_):
+#                            if rel:
+#                                target_ = target_.replace('predpos@@'+str(idx1+1),rel)
+#                        resulttarget = hitkg(target_)
+#                        if not resulttarget:
+#                            continue
+#                        for idx1,ent in enumerate(ents_):
+#                            if ent:
+#                                answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
+#                        for idx1,rel in enumerate(rels_):
+#                            if rel:
+#                                answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
+#                        resultanswer = hitkg(answer_)
+#                        f1  = calcf1(resulttarget,resultanswer)
+#                        totf1 += f1
+#                        qcount += 1
+#                        avgf1 = totf1/float(qcount)
                         qcount += 1
-                        avgf1 = totf1/float(qcount)
                         print("target: ", target_)
                         print("answer: ", answer_)
-                        print("target: ",resulttarget)
-                        print("answer: ",resultanswer)
-                        print("f1: ",f1)
-                        print("avgf1: ",avgf1)
+                        #print("target: ",resulttarget)
+                        #print("answer: ",resultanswer)
+                        #print("f1: ",f1)
+                        #print("avgf1: ",avgf1)
                         print("qcount: ",qcount)
                         #print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
-                    #if testidx >= 4:
-                    #    break
+                    if testidx >= 4:
+                        break
                 except Exception as err:
                         print("er: ",err)             
         #return testlossfloat
-#        return float(totalfuzznonbeam)/(qcount+0.001)
-        return avgf1
+        return float(totalfuzznonbeam)/(qcount+0.001)
 
 
 def train_model(model, batcher, testbatcher, params, ckpt, ckpt_manager):

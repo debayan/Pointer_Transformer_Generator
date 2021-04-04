@@ -17,8 +17,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         if not question or not intermediate_sparql:
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
-                        question = question#.replace('{','').replace('}','').replace('?',' ?')
-                        intermediate_sparql = intermediate_sparql.replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
+                        question = question.replace('?',' ?')
+                        intermediate_sparql = intermediate_sparql.replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )').replace('^^',' ^^ ')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
                          
@@ -40,9 +40,9 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         enc_input_mask = [vocab.word_to_id(w) for w in question_words]
                         enc_input_extend_vocab, question_oovs = Data_Helper.article_to_ids(question_words, vocab)
                         for idx,ent in enumerate(ents):
-                            intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(ents.index(ent)+1))
+                            intermediate_sparql = intermediate_sparql.replace('ns:'+ent,'entpos@@'+str(ents.index(ent)+1))
                         for idx,rel in enumerate(rels):
-                            intermediate_sparql = intermediate_sparql.replace(rel,'predpos@@'+str(rels.index(rel)+1))
+                            intermediate_sparql = intermediate_sparql.replace('ns:'+rel,'predpos@@'+str(rels.index(rel)+1))
                         #sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
                         #intermediate_sparql += sparqladd
                      
@@ -82,7 +82,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
 def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, training):
         dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, training],
                                                                                         output_types = {
-                                                                                                "uid":tf.int32,
+                                                                                                "uid":tf.string,
                                                                                                 "enc_len":tf.int32,
                                                                                                 "enc_input" : tf.float32,
                                                                                                 "enc_input_mask" : tf.int32,
@@ -125,7 +125,7 @@ def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_le
                                                                                                 "rels": [None]
                                                                                                 }),
                                                                                         padding_values={"enc_len":-1,
-                                                                                                "uid": -1,
+                                                                                                "uid": b"",
                                                                                                 "enc_input" : -1.0,
                                                                                                 "enc_input_mask" : -1,
                                                                                                 "enc_input_extend_vocab"  : 1,
