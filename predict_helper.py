@@ -47,12 +47,12 @@ def calcf1(target,answer):
 
 def hitkg(query):
     try:
-        url = 'http://ltcpu1:8892/sparql/'
-        #print(query)
-        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> ' + query
+        url = 'https://aqqu.cs.uni-freiburg.de/sparql'
+        query = 'PREFIX ns: <http://rdf.freebase.com/ns/>  ' + query
+        print(query)
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
-        #print(entid,json_format)
+        print(json_format)
         results = json_format
         return results
     except Exception as err:
@@ -122,22 +122,22 @@ def predict(featuress, params, model):
                 answertemplate = answer_
                 for idx1,ent in enumerate(ents_):
                     if ent:
-                        target_ = target_.replace('entpos@@'+str(idx1+1),ent)
+                        target_ = target_.replace('entpos@@'+str(idx1+1),'ns:'+ent)
                 for idx1,rel in enumerate(rels_):
                     if rel:
-                        target_ = target_.replace('predpos@@'+str(idx1+1),rel)
+                        target_ = target_.replace('predpos@@'+str(idx1+1),'ns:'+rel)
                 resulttarget = hitkg(target_)
                 for idx1,ent in enumerate(ents_):
                     if ent:
-                        answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
+                        answer_ = answer_.replace('entpos@@'+str(idx1+1),'ns:'+ent)
                 for idx1,rel in enumerate(rels_):
                     if rel:
-                        answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
+                        answer_ = answer_.replace('predpos@@'+str(idx1+1),'ns:'+rel)
                 resultanswer = hitkg(answer_)
                 f1  = calcf1(resulttarget,resultanswer)
                 totf1 += f1
                 avgf1 = totf1/float(qcount)
-                print("uid: ",int(uid.numpy()))
+                print("uid: ",str(uid.numpy()))
                 print("question: ", question.numpy().decode('utf-8'))
                 print("target: ", target_)
                 print("answer: ", answer_)
@@ -150,7 +150,7 @@ def predict(featuress, params, model):
                 print("answerkg: ",resultanswer)
                 print("f1 = ",f1)
                 print("avgf1 = ",avgf1)
-                resd['uid'] = int(uid.numpy())
+                resd['uid'] = str(uid.numpy())
                 resd['question'] = question.numpy().decode('utf-8')
                 resd['target'] = target_
                 resd['answer'] = answer_
