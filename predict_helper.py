@@ -141,8 +141,8 @@ def predict(featuress, params, model):
                 print("question: ", question.numpy().decode('utf-8'))
                 print("target: ", target_)
                 print("answer: ", answer_)
-                print("targettemplate: ",targettemplate)
-                print("answertemplate: ",answertemplate)
+                print("temptar: ",targettemplate)
+                print("tempans: ",answertemplate)
                 print("goldents: ", ents_)
                 print("goldrels: ", rels_)
                 print("exactmatch: ",em)
@@ -154,8 +154,8 @@ def predict(featuress, params, model):
                 resd['question'] = question.numpy().decode('utf-8')
                 resd['target'] = target_
                 resd['answer'] = answer_
-                resd['targettemplate'] = targettemplate
-                resd['answertemplate'] = answertemplate
+                resd['querytemptar'] = targettemplate
+                resd['querytempans'] = answertemplate
                 resd['goldents'] = ents_
                 resd['goldrels'] = rels_
                 retarr.append(resd) 

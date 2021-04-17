@@ -5,11 +5,16 @@ import sys
 from data_helper import Vocab, Data_Helper
 
 
-def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, training=False):
+def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, validids, training=False):
         vocab = Vocab(vocab_path, vocab_size)
         #d = json.loads(open(filename).read())
+        linecount = 1
         with open(filename) as file_in:
                 for line in file_in:
+                        if linecount not in validids:
+                            linecount += 1
+                            continue
+                        linecount += 1
                         linearr = json.loads(line.strip())
                         uid = linearr[0]
                         question = linearr[1]
@@ -17,7 +22,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         if not question or not intermediate_sparql:
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
-                        question = question#.replace('{','').replace('}','').replace('?',' ?')
+                        question = question.replace('?',' ?')
                         intermediate_sparql = intermediate_sparql.replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)
@@ -79,8 +84,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         
                         yield output
 
-def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, training):
-        dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, training],
+def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, validids, training):
+        dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, validids, training],
                                                                                         output_types = {
                                                                                                 "uid":tf.int32,
                                                                                                 "enc_len":tf.int32,
@@ -161,10 +166,10 @@ def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_le
         return dataset
 
 
-def entitybatcher(data_path, vocab_path, hpm):
+def entitybatcher(data_path, vocab_path, hpm, validids):
         print(data_path)
         f = open(data_path)
-        dataset = batch_generator(example_generator, f, data_path, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"], hpm["training"] )
+        dataset = batch_generator(example_generator, f, data_path, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"], validids, hpm["training"])
         f.close()
         return dataset
 

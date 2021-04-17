@@ -7,6 +7,7 @@ from transformer import Transformer
 import os
 import sys
 import json
+import random
 
 
 
@@ -42,8 +43,15 @@ def train(params):
 
 
         tf.compat.v1.logging.info("Creating the batcher ...")
-        b = entitybatcher(params["data_dir"], params["vocab_path"], params)
-        testb = entitybatcher(params["test_dir"], params["vocab_path"],params)
+        random.seed(params["fold"])
+        ids = [x for x in range(1,312)]
+        random.shuffle(ids)
+        trainids = [x for x in ids[:218]]
+        devids = [x for x in ids[218:249]]
+        testids = [x for x in ids[249:]]
+        b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids)
+        devb = entitybatcher(params["data_dir"], params["vocab_path"],params,devids)
+        testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
         logdir = "{}/logdir".format(params["model_dir"])
@@ -58,7 +66,7 @@ def train(params):
                 print("Initializing from scratch.")
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, testb, params, ckpt, ckpt_manager)
+        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager)
         
 
 
@@ -76,6 +84,6 @@ def test(params):
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
         out,att,retarr = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
-        f = open(params["model_dir"].strip("/")+'out.json','w')
+        f = open(params["model_dir"].strip("/")+'trainout.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()

@@ -22,6 +22,10 @@ def main():
         parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
         parser.add_argument("--batch_size", default=32, help="batch size", type=int)
+      
+        parser.add_argument("--fold",  help="k cross fold number", type=int)
+
+        parser.add_argument("--test_batch_size", default=32, help="batch size", type=int)
         
         parser.add_argument("--vocab_size", default=256, help="Vocabulary size", type=int)
         
