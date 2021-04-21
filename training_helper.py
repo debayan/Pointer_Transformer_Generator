@@ -3,6 +3,7 @@ from utils import create_masks
 import time
 import sys
 from data_helper import Data_Helper, Vocab
+from entitybatcher import entitybatcher
 import time
 from fuzzywuzzy import fuzz
 from tensorflow.keras.losses import categorical_crossentropy
@@ -52,7 +53,7 @@ def hitkg(query):
     try:
         url = 'http://ltdocker:8894/sparql/'
         #print(query)
-        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> ' + query
+        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> PREFIX yago: <http://dbpedia.org/class/yago/> ' + query
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
         #print(entid,json_format)
@@ -167,6 +168,7 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
                     if rel:
                         answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
                 resultanswer = hitkg(answer_)
+
                 f1  = calcf1(resulttarget,resultanswer)
                 totf1 += f1
                 qcount += 1
@@ -210,7 +212,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         return devavgf1,testavgf1 
 
 
-def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager):
+def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager, summary_writer, trainids):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
         optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.01)
@@ -218,24 +220,42 @@ def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_mana
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
         try:
-                bestf1 = 0.0
+                bestdevf1 = 0.0
+                bestdevtestf1 = 0.0
+                besttestf1 = 0.0
                 epoch = 0
-                while epoch < params["max_epochs"]:#while int(ckpt.step) < params["max_steps"]:
+                curriculumcount = {}
+                while epoch < params["max_epochs"] and int(ckpt.step) < params["max_steps"]:
+                        if int(ckpt.step) > params["max_steps"]/3 and 2 not in curriculumcount: 
+                                batcher = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 2)
+                                curriculumcount[2] = True
+                                print("Entering curriculum 2")
                         epoch += 1
                         for idx,batch in enumerate(batcher):
                                 t0 = time.time()
                                 devf1,testf1 = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
                                 t1 = time.time()
                                 if ckpt.step%100 == 0 and ckpt.step > 1:
-                                    print("testf1 - devf1 - bestdevf1 : ",testf1,devf1,bestf1)
-                                    if devf1 > bestf1:
-                                        bestf1 = devf1
-                                        print("Best val f1 so far: %f"%(devf1))
+                                    if testf1 > besttestf1:
+                                        print("Best test f1 so far: %f"%(testf1))
+                                        besttestf1 = testf1
+                                    if devf1 > bestdevf1:
+                                        bestdevf1 = devf1
+                                        print("Best dev f1 so far: %f"%(devf1))
+                                        bestdevtestf1 = testf1
                                         ckpt_manager.save(checkpoint_number=int(ckpt.step))
                                         print("Saved checkpoint for step {}".format(int(ckpt.step)))
+                                    print("testf1: %f - devf1: %f - bestdevf1: %f - bestdevtestf1: %f - besttestf1 %f "%(testf1,devf1,bestdevf1,bestdevtestf1,besttestf1))
+                                    with summary_writer.as_default():
+                                        tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
+                                        tf.summary.scalar('testf1', testf1,step=int(ckpt.step))
+                                        tf.summary.scalar('train_loss', train_loss_metric.result(), step=int(ckpt.step))
+                                        #tf.summary.scalar('bestdevf1', bestdevf1, step=int(ckpt.step))   
+                                        #tf.summary.scalar('besttestf1', besttestf1,step=int(ckpt.step))
+                                        #tf.summary.scalar('bestdevtestf1', bestdevtestf1,step=int(ckpt.step))
                                 print("epoch {} step {}, time : {}, loss: {}".format(epoch,int(ckpt.step), t1-t0, train_loss_metric.result()))
                                 ckpt.step.assign_add(1)
-                        
+                       
         except KeyboardInterrupt:
                 #ckpt_manager.save(int(ckpt.step))
                 #print("Saved checkpoint for step {}".format(int(ckpt.step)))

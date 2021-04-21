@@ -49,12 +49,13 @@ def train(params):
         trainids = [x for x in ids[:218]]
         devids = [x for x in ids[218:249]]
         testids = [x for x in ids[249:]]
-        b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids)
-        devb = entitybatcher(params["data_dir"], params["vocab_path"],params,devids)
-        testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
+        b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 1) #curricullum 1
+        devb = entitybatcher(params["data_dir"], params["vocab_path"],params,devids, 'dev', 0)
+        testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids, 'test', 0)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
         logdir = "{}/logdir".format(params["model_dir"])
+        summary_writer = tf.summary.create_file_writer(logdir)
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         ckpt = tf.train.Checkpoint(step=tf.Variable(0), transformer=transformer)
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
@@ -66,7 +67,7 @@ def train(params):
                 print("Initializing from scratch.")
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager)
+        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager, summary_writer, trainids)
         
 
 

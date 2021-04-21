@@ -90,6 +90,7 @@ class Transformer(tf.keras.Model):
                 self.embedding = Embedding(vocab_size, d_model)
                 self.encoder = Encoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
                 self.decoder = Decoder(num_layers, d_model, num_heads, dff, vocab_size, rate)
+                self.inter_layer = tf.keras.layers.Dense(vocab_size)            
                 self.final_layer = tf.keras.layers.Dense(vocab_size)
 
         def get_angles(self,pos, i):
@@ -114,7 +115,8 @@ class Transformer(tf.keras.Model):
                 
                 dec_output, attention_weights, p_gens = self.decoder(embed_dec, enc_output, training, look_ahead_mask, dec_padding_mask)
                 
-                output = self.final_layer(dec_output)  # (batch_size, tar_seq_len, target_vocab_size)
+                output = self.inter_layer(dec_output)
+                output = self.final_layer(output)  # (batch_size, tar_seq_len, target_vocab_size)
                 output = tf.nn.softmax(output) # (batch_size, tar_seq_len, vocab_size)
                 #output = tf.concat([output, tf.zeros((tf.shape(output)[0], tf.shape(output)[1], max_oov_len))], axis=-1) # (batch_size, targ_seq_len, vocab_size+max_oov_len)
 
