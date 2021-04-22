@@ -2,9 +2,13 @@ import sys,os,json
 
 word2id = {}
 id2word = {}
-d = json.loads(open('combine_corrector_data_mistakes_scratch_jivat.json').read())
+d = json.loads(open(sys.argv[1]).read())
 wcount = 3
 for item in d:
+    if 'UNK' in item['querytempans'] or 'UNK' in item['querytemptar']:
+        continue
+    if item['querytempans'] == item['querytemptar']:
+        continue
     for w in item['querytempans'].split():
         if w not in word2id:
             word2id[w] = wcount
@@ -17,6 +21,10 @@ for item in d:
             wcount += 1
 master = []
 for item in d:
+    if 'UNK' in item['querytempans'] or 'UNK' in item['querytemptar']:
+        continue
+    if item['querytempans'] == item['querytemptar']:
+        continue
     arr = []
     for w in item['querytempans'].split():
         arr.append(str(word2id[w]))
@@ -37,15 +45,15 @@ for item in d:
     print(item['querytemptar'])
     master.append(arr)
 
-f = open('input_lstm_scratch_jivat.txt','w')
+f = open('input_qald5_newvocab_jivat.txt','w')
 for x in master:
     f.write(' '.join(x)+'\n')
 f.close()
 
-f = open('id2word_lstm_scratch_jivat.txt','w')
+f = open('id2word_qald5_newvocab_jivat.txt','w')
 f.write(json.dumps(id2word))
 f.close()
 
-f = open('word2id_lstm_scratch_jivat.txt','w')
+f = open('word2id_qald5_newvocab_jivat.txt','w')
 f.write(json.dumps(word2id))
 f.close()

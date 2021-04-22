@@ -105,9 +105,8 @@ class Transformer(tf.keras.Model):
                 pos_encoding = angle_rads[np.newaxis, ...]
                 return tf.cast(pos_encoding, dtype=tf.float32)
 
-        def call(self, questions, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
-                positional_encoding = self.positional_encoding(inp_)
-                embed_x = inp_ + positional_encoding[:, :tf.shape(inp_)[1], :]
+        def call(self,  inp, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
+                embed_x = self.embedding(inp)
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)

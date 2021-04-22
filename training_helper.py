@@ -44,8 +44,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         enc_padding_mask, combined_mask, dec_padding_mask = create_masks(features["enc_input_mask"], labels["dec_input"])
         testlossfloat = 999.0
         with tf.GradientTape() as tape:
-                questions = [q.numpy().decode('utf-8') for q in features["question"]]
-                output, attn_weights = model(questions,features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
+                output, attn_weights = model(features["enc_input"],features["extended_enc_input"], features["max_oov_len"], labels["dec_input"], training=params["training"], 
                                                                         enc_padding_mask=enc_padding_mask, 
                                                                         look_ahead_mask=combined_mask,
                                                                         dec_padding_mask=dec_padding_mask)
@@ -76,7 +75,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                     #testquestions = [q.numpy().decode('utf-8') for q in testfeatures["question"]]
                     for i in range(params["max_dec_len"]):
                         test_enc_padding_mask, test_combined_mask, test_dec_padding_mask = create_masks(testfeatures["enc_input_mask"], output)
-                        predictions, test_attn_weights = model(testfeatures["question"],testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
+                        predictions, test_attn_weights = model(testfeatures["enc_input"],testfeatures["extended_enc_input"], testfeatures["max_oov_len"], output, training=False, enc_padding_mask=test_enc_padding_mask, look_ahead_mask=test_combined_mask,dec_padding_mask=test_dec_padding_mask)
                         # select the last word from the seq_len dimension
 #                        if not predblock:
 #                            predblock = predictions
@@ -170,8 +169,6 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
                         #print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
                         print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
                     print("testidx: ",testidx)
-                    if testidx >= 4:
-                        break
                 except Exception as err:
                         print("er: ",err)             
         #return testlossfloat
