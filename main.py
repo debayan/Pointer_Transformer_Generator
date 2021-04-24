@@ -21,15 +21,15 @@ def main():
         
         parser.add_argument("--max_dec_len", default=128, help="Decoder input max sequence length", type=int)
         
-        parser.add_argument("--batch_size", default=32, help="batch size", type=int)
+        parser.add_argument("--batch_size", default=100, help="batch size", type=int)
         
         parser.add_argument("--vocab_size", default=256, help="Vocabulary size", type=int)
         
         parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
-        parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
+        parser.add_argument("--model_depth", default=800, help="Model Embedding size", type=int)
         
-        parser.add_argument("--num_heads", default=10, help="Multi Attention number of heads", type=int)
+        parser.add_argument("--num_heads", default=1, help="Multi Attention number of heads", type=int)
         
         parser.add_argument("--dff", default=2048, help="Dff", type=int)
 
@@ -37,7 +37,9 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=800000, help="Max steps for training", type=int)
+        parser.add_argument("--fold", default=1, help="k cross validation", type=int)        
+
+        parser.add_argument("--max_steps",default=600000, help="Max steps for training", type=int)
        
         parser.add_argument("--max_epochs", default=500, help="Max epochs during training", type=int)
                 

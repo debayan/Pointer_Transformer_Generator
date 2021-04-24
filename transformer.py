@@ -105,14 +105,15 @@ class Transformer(tf.keras.Model):
                 pos_encoding = angle_rads[np.newaxis, ...]
                 return tf.cast(pos_encoding, dtype=tf.float32)
 
-        def call(self,  inp, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
-                embed_x = self.embedding(inp)
+        def call(self, questions, inp_, extended_inp,max_oov_len, tar, training, enc_padding_mask, look_ahead_mask, dec_padding_mask):
+                positional_encoding = self.positional_encoding(inp_)
+                embed_x = inp_ + positional_encoding[:, :tf.shape(inp_)[1], :]
                 embed_dec = self.embedding(tar)
                 enc_output = self.encoder(embed_x, training, enc_padding_mask)  # (batch_size, inp_seq_len, d_model)
                 # dec_output.shape == (batch_size, tar_seq_len, d_model)
-                
+
                 dec_output, attention_weights, p_gens = self.decoder(embed_dec, enc_output, training, look_ahead_mask, dec_padding_mask)
-                
+
                 output = self.final_layer(dec_output)  # (batch_size, tar_seq_len, target_vocab_size)
                 output = tf.nn.softmax(output) # (batch_size, tar_seq_len, vocab_size)
                 #output = tf.concat([output, tf.zeros((tf.shape(output)[0], tf.shape(output)[1], max_oov_len))], axis=-1) # (batch_size, targ_seq_len, vocab_size+max_oov_len)
@@ -125,3 +126,4 @@ class Transformer(tf.keras.Model):
                 final_output =tf.stack(final_dists, axis=1)
 
                 return final_output, attention_weights
+

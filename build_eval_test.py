@@ -5,6 +5,7 @@ from predict_helper import predict
 from entitybatcher import entitybatcher
 from transformer import Transformer
 import os
+import random
 import sys
 import json
 
@@ -42,11 +43,19 @@ def train(params):
 
 
         tf.compat.v1.logging.info("Creating the batcher ...")
-        b = entitybatcher(params["data_dir"], params["vocab_path"], params)
-        testb = entitybatcher(params["test_dir"], params["vocab_path"],params)
+        random.seed(params["fold"])
+        ids = [x for x in range(1,3254)]
+        random.shuffle(ids)
+        trainids = [x for x in ids[:2278]]
+        devids = [x for x in ids[2278:2603]]
+        testids = [x for x in ids[2603:]]
+        b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids) #curricullum 1
+        devb = entitybatcher(params["data_dir"], params["vocab_path"],params, devids)
+        testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
         logdir = "{}/logdir".format(params["model_dir"])
+        summary_writer = tf.summary.create_file_writer(logdir)
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         ckpt = tf.train.Checkpoint(step=tf.Variable(0), transformer=transformer)
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
@@ -58,8 +67,8 @@ def train(params):
                 print("Initializing from scratch.")
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, testb, params, ckpt, ckpt_manager)
-        
+        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager, summary_writer, trainids)
+ 
 
 
 def eval(model, params):
@@ -67,6 +76,12 @@ def eval(model, params):
 
 
 def test(params):
+        random.seed(params["fold"])
+        ids = [x for x in range(1,3254)]
+        random.shuffle(ids)
+        trainids = [x for x in ids[:2278]]
+        devids = [x for x in ids[2278:2603]]
+        testids = [x for x in ids[2603:]]
         assert not params["training"], "change training mode to false"
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         logdir = "{}/logdir".format(params["model_dir"])
@@ -75,7 +90,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        out,att,retarr = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
-        f = open(params["model_dir"].strip("/")+'out.json','w')
+        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,testids), params, model)
+        f = open(params["model_dir"].strip("/")+'evalout.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()
