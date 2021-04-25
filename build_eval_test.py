@@ -43,12 +43,24 @@ def train(params):
 
 
         tf.compat.v1.logging.info("Creating the batcher ...")
-        random.seed(params["fold"])
         ids = [x for x in range(1,3254)]
-        random.shuffle(ids)
-        trainids = [x for x in ids[:2278]]
-        devids = [x for x in ids[2278:2603]]
-        testids = [x for x in ids[2603:]]
+        length = int(len(ids)/5) #length of each fold
+        folds = []
+        for i in range(5):
+            folds += [ids[i*length:(i+1)*length]]
+        folds += [ids[5*length:len(ids)]]
+        testids = folds[params['fold']-1]
+        trainids_ = []
+        for i in range(5):
+            if params['fold'] - 1 == i:
+                continue
+            trainids_ += folds[i]
+        trainids = trainids_[:2275]
+        devids = trainids_[2275:]
+        print("fold:",params['fold'])
+        print("trainids:", trainids,len(trainids))
+        print("testids:",testids,len(testids))
+        print("devids:",devids,len(devids)) 
         b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids) #curricullum 1
         devb = entitybatcher(params["data_dir"], params["vocab_path"],params, devids)
         testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
@@ -76,12 +88,24 @@ def eval(model, params):
 
 
 def test(params):
-        random.seed(params["fold"])
         ids = [x for x in range(1,3254)]
-        random.shuffle(ids)
-        trainids = [x for x in ids[:2278]]
-        devids = [x for x in ids[2278:2603]]
-        testids = [x for x in ids[2603:]]
+        length = int(len(ids)/5) #length of each fold
+        folds = []
+        for i in range(5):
+            folds += [ids[i*length:(i+1)*length]]
+        folds += [ids[5*length:len(ids)]]
+        testids = folds[params['fold']-1]
+        trainids_ = []
+        for i in range(5):
+            if params['fold'] - 1 == i:
+                continue
+            trainids_ += folds[i]
+        trainids = trainids_[:2275]
+        devids = trainids_[2275:]
+        print("fold:",params['fold'])
+        print("trainids:", trainids,len(trainids))
+        print("testids:",testids,len(testids))
+        print("devids:",devids,len(devids))
         assert not params["training"], "change training mode to false"
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         logdir = "{}/logdir".format(params["model_dir"])
