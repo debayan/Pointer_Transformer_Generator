@@ -11,6 +11,8 @@ import numpy as np
 import requests
 
 def calcf1(target,answer):
+    if not target:
+        return 0.0
     if target == answer:
         return 1.0
     try:

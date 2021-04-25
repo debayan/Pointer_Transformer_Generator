@@ -43,12 +43,25 @@ def train(params):
 
 
         tf.compat.v1.logging.info("Creating the batcher ...")
-        random.seed(params["fold"])
         ids = [x for x in range(1,312)]
-        random.shuffle(ids)
-        trainids = [x for x in ids[:218]]
-        devids = [x for x in ids[218:249]]
-        testids = [x for x in ids[249:]]
+        length = int(len(ids)/5) #length of each fold
+        folds = []
+        for i in range(5):
+            folds += [ids[i*length:(i+1)*length]]
+        folds += [ids[5*length:len(ids)]]
+        testids = folds[params['fold']-1]
+        trainids_ = []
+        for i in range(5):
+            if params['fold'] - 1 == i:
+                continue
+            trainids_ += folds[i]
+        trainids = trainids_[:217]
+        devids = trainids_[217:]
+        print("fold:",params['fold'])
+        print("trainids:", trainids,len(trainids))
+        print("testids:",testids,len(testids))
+        print("devids:",devids,len(devids))
+
         b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 1) #curricullum 1
         devb = entitybatcher(params["data_dir"], params["vocab_path"],params,devids, 'dev', 0)
         testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids, 'test', 0)
