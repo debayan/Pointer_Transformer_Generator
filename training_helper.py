@@ -80,7 +80,7 @@ def calcf1(target,answer):
         print("f1: ",f1)
         return f1
 
-def hitkg(query):
+def hitkg(query, querytype):
     try:
         url = 'http://ltcpu1:8892/sparql/'
         #print(query)
@@ -90,7 +90,8 @@ def hitkg(query):
         results = json_format
         return results
     except Exception as err:
-        print(query," -> no response ",err)
+        if querytype == 'target':
+            print(query," -> no response ",err)
         return ''
 
 
@@ -157,14 +158,14 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
                 for idx1,rel in enumerate(rels_):
                     if rel:
                         target_ = target_.replace('predpos@@'+str(idx1+1),rel)
-                resulttarget = hitkg(target_)
+                resulttarget = hitkg(target_,'target')
                 for idx1,ent in enumerate(ents_):
                     if ent:
                         answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
                 for idx1,rel in enumerate(rels_):
                     if rel:
                         answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
-                resultanswer = hitkg(answer_)
+                resultanswer = hitkg(answer_,'answer')
 
                 f1  = calcf1(resulttarget,resultanswer)
                 totf1 += f1
@@ -203,9 +204,11 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         totf1 = 0
         devavgf1 = 0.0
         testavgf1 = 0.0
-        if ckptstep%500 == 0 and ckptstep > 1:
-            devavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
+        if ckptstep%1000 == 0 and ckptstep > 1:
+            devavgf1 = 0#f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
+            print("devf1:",devavgf1)
             testavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep)
+            print("testf1:",testavgf1)
         return devavgf1,testavgf1
 
 
@@ -228,19 +231,21 @@ def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_mana
                                 t0 = time.time()
                                 devf1,testf1 = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
                                 t1 = time.time()
-                                if ckpt.step%500 == 0 and ckpt.step > 1:
+                                if ckpt.step%1000 == 0 and ckpt.step > 1:
                                     if testf1 > besttestf1:
                                         print("Best test f1 so far: %f"%(testf1))
                                         besttestf1 = testf1
-                                    if devf1 > bestdevf1:
-                                        bestdevf1 = devf1
-                                        print("Best dev f1 so far: %f"%(devf1))
-                                        bestdevtestf1 = testf1
                                         ckpt_manager.save(checkpoint_number=int(ckpt.step))
                                         print("Saved checkpoint for step {}".format(int(ckpt.step)))
+                                    #if devf1 > bestdevf1:
+                                    #    bestdevf1 = devf1
+                                    #    print("Best dev f1 so far: %f"%(devf1))
+                                    #    bestdevtestf1 = testf1
+#                                        ckpt_manager.save(checkpoint_number=int(ckpt.step))
+#                                        print("Saved checkpoint for step {}".format(int(ckpt.step)))
                                     print("testf1: %f - devf1: %f - bestdevf1: %f - bestdevtestf1: %f - besttestf1 %f "%(testf1,devf1,bestdevf1,bestdevtestf1,besttestf1))
                                     with summary_writer.as_default():
-                                        tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
+                                        #tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
                                         tf.summary.scalar('testf1', testf1,step=int(ckpt.step))
                                         tf.summary.scalar('train_loss', train_loss_metric.result(), step=int(ckpt.step))
                                         #tf.summary.scalar('bestdevf1', bestdevf1, step=int(ckpt.step))   

@@ -55,14 +55,14 @@ def train(params):
             if params['fold'] - 1 == i:
                 continue
             trainids_ += folds[i]
-        trainids = trainids_[:2275]
-        devids = trainids_[2275:]
+        trainids = trainids_#[:2275]
+        #devids = trainids_[2275:]
         print("fold:",params['fold'])
         print("trainids:", trainids,len(trainids))
         print("testids:",testids,len(testids))
-        print("devids:",devids,len(devids)) 
+       # print("devids:",devids,len(devids)) 
         b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids) #curricullum 1
-        devb = entitybatcher(params["data_dir"], params["vocab_path"],params, devids)
+        devb = None#entitybatcher(params["data_dir"], params["vocab_path"],params, devids)
         testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
@@ -114,7 +114,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,testids), params, model)
-        f = open(params["model_dir"].strip("/")+'evalout.json','w')
+        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,devids), params, model)
+        f = open(params["model_dir"].strip("/")+'devout.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()
