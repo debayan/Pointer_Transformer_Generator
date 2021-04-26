@@ -209,7 +209,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         devavgf1 = 0.0
         testavgf1 = 0.0
         if ckptstep%100 == 0 and ckptstep > 1:
-            devavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
+            devavgf1 = 0#f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
             testavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep)
         return devavgf1,testavgf1 
 
@@ -241,15 +241,17 @@ def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_mana
                                     if testf1 > besttestf1:
                                         print("Best test f1 so far: %f"%(testf1))
                                         besttestf1 = testf1
-                                    if devf1 > bestdevf1:
-                                        bestdevf1 = devf1
-                                        print("Best dev f1 so far: %f"%(devf1))
-                                        bestdevtestf1 = testf1
                                         ckpt_manager.save(checkpoint_number=int(ckpt.step))
                                         print("Saved checkpoint for step {}".format(int(ckpt.step)))
+                                    #if devf1 > bestdevf1:
+                                    #    bestdevf1 = devf1
+                                    #    print("Best dev f1 so far: %f"%(devf1))
+                                    #    bestdevtestf1 = testf1
+#                                        ckpt_manager.save(checkpoint_number=int(ckpt.step))
+#                                        print("Saved checkpoint for step {}".format(int(ckpt.step)))
                                     print("testf1: %f - devf1: %f - bestdevf1: %f - bestdevtestf1: %f - besttestf1 %f "%(testf1,devf1,bestdevf1,bestdevtestf1,besttestf1))
                                     with summary_writer.as_default():
-                                        tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
+                                    #    tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
                                         tf.summary.scalar('testf1', testf1,step=int(ckpt.step))
                                         tf.summary.scalar('train_loss', train_loss_metric.result(), step=int(ckpt.step))
                                         #tf.summary.scalar('bestdevf1', bestdevf1, step=int(ckpt.step))   

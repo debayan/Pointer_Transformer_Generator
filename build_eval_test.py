@@ -55,15 +55,15 @@ def train(params):
             if params['fold'] - 1 == i:
                 continue
             trainids_ += folds[i]
-        trainids = trainids_[:217]
-        devids = trainids_[217:]
+        trainids = trainids_#[:248]
+#        devids = trainids_[217:]
         print("fold:",params['fold'])
         print("trainids:", trainids,len(trainids))
         print("testids:",testids,len(testids))
-        print("devids:",devids,len(devids))
+#        print("devids:",devids,len(devids))
 
         b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 1) #curricullum 1
-        devb = entitybatcher(params["data_dir"], params["vocab_path"],params,devids, 'dev', 0)
+        devb = None#entitybatcher(params["data_dir"], params["vocab_path"],params,devids, 'dev', 0)
         testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids, 'test', 0)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
