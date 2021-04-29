@@ -180,6 +180,8 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
                 print("qcount: ",qcount)
                 #print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
             print("testidx: ",testidx)
+            if testidx > 3:
+                break
         except Exception as err:
             print("er: ",err)
     return avgf1

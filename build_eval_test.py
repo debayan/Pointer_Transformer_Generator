@@ -95,17 +95,8 @@ def test(params):
             folds += [ids[i*length:(i+1)*length]]
         folds += [ids[5*length:len(ids)]]
         testids = folds[params['fold']-1]
-        trainids_ = []
-        for i in range(5):
-            if params['fold'] - 1 == i:
-                continue
-            trainids_ += folds[i]
-        trainids = trainids_[:2275]
-        devids = trainids_[2275:]
         print("fold:",params['fold'])
-        print("trainids:", trainids,len(trainids))
         print("testids:",testids,len(testids))
-        print("devids:",devids,len(devids))
         assert not params["training"], "change training mode to false"
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         logdir = "{}/logdir".format(params["model_dir"])
@@ -114,7 +105,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,devids), params, model)
-        f = open(params["model_dir"].strip("/")+'devout.json','w')
+        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,testids), params, model)
+        f = open(params["model_dir"].strip("/")+'out.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()
