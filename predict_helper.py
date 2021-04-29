@@ -7,6 +7,8 @@ import requests
 
 
 def calcf1(target,answer):
+    if not target:
+        return 0.0
     if target == answer:
         return 1.0
     try:
@@ -47,7 +49,7 @@ def calcf1(target,answer):
 
 def hitkg(query):
     try:
-        url = 'http://ltcpu1:8892/sparql/'
+        url = 'http://ltdocker:8894/sparql/'
         #print(query)
         query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> ' + query
         r = requests.get(url, params={'format': 'json', 'query': query})

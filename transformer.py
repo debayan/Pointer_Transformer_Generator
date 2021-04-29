@@ -7,7 +7,7 @@ from utils import _calc_final_dist
 
 class Encoder(tf.keras.layers.Layer):
         def __init__(self, num_layers, d_model, num_heads, dff, input_vocab_size, 
-                                rate=0.1):
+                                rate=0.0):
                 super(Encoder, self).__init__()
                 self.d_model = d_model
                 self.num_layers = num_layers
@@ -26,7 +26,7 @@ class Encoder(tf.keras.layers.Layer):
 
 class Decoder(tf.keras.layers.Layer):
         def __init__(self, num_layers, d_model, num_heads, dff, target_vocab_size, 
-                                rate=0.1):
+                                rate=0.5):
                 super(Decoder, self).__init__()
                 self.d_model = d_model
                 self.num_layers = num_layers

@@ -217,7 +217,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager, summary_writer, trainids):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
-        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.01)
+        optimizer = tf.keras.optimizers.Adam(0.0005, beta_1=0.9, beta_2=0.98, epsilon=0.01)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
@@ -228,12 +228,16 @@ def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_mana
                 epoch = 0
                 curriculumcount = {}
                 while epoch < params["max_epochs"] and int(ckpt.step) < params["max_steps"]:
-                        if int(ckpt.step) > params["max_steps"]/3 and 2 not in curriculumcount: 
-                                batcher = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 2)
-                                curriculumcount[2] = True
-                                print("Entering curriculum 2")
+#                        if int(ckpt.step) > params["max_steps"]/3 and 2 not in curriculumcount: 
+#                        if int(ckpt.step) > 2000 and 2 not in curriculumcount:
+#                                batcher = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids, 'train', 2)
+#                                curriculumcount[2] = True
+#                                print("Entering curriculum 2")
                         epoch += 1
                         for idx,batch in enumerate(batcher):
+#                                if int(ckpt.step) == params['reducelrstep']:
+#                                    print("slower learning rate")
+#                                    tf.keras.backend.set_value(optimizer.learning_rate, 0.0005)
                                 t0 = time.time()
                                 devf1,testf1 = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
                                 t1 = time.time()

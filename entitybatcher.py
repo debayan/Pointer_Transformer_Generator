@@ -24,14 +24,14 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         #remove parts after [SEP] for experimenting with non ent rel input
                         question = question.replace('?',' ?')
                         intermediate_sparql = intermediate_sparql.replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('COUNT(?','COUNT ( ?').replace('vr0)','vr0 )').replace('vr1)','vr1 )').replace('(?','( ?')
-                        if mode.decode('utf-8') == 'train':
-                            if curriculum == 0:
-                                pass
-                            if curriculum == 1:
-                                if 'select count'  in intermediate_sparql.lower() or 'ask where' in intermediate_sparql.lower() or 'union' in intermediate_sparql.lower():
-                                    continue
-                            if curriculum == 2:
-                                pass
+#                        if mode.decode('utf-8') == 'train':
+#                            if curriculum == 0:
+#                                pass
+#                            if curriculum == 1:
+#                                if 'select count'  in intermediate_sparql.lower() or 'ask where' in intermediate_sparql.lower() or 'union' in intermediate_sparql.lower():
+#                                    continue
+#                            if curriculum == 2:
+#                                pass
                         #print(mode, " passed: ",intermediate_sparql.lower())
                         start_decoding = vocab.word_to_id(vocab.START_DECODING)
                         stop_decoding = vocab.word_to_id(vocab.STOP_DECODING)

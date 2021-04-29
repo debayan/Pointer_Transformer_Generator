@@ -29,6 +29,8 @@ def main():
         
         parser.add_argument("--vocab_size", default=256, help="Vocabulary size", type=int)
         
+        parser.add_argument("--reducelrstep", default=2000, help="reduce learning rate at this step", type=int)
+        
         parser.add_argument("--num_layers", default=2, help="Model encoder and decoder number of layers", type=int)
         
         parser.add_argument("--model_depth", default=500, help="Model Embedding size", type=int)
@@ -41,7 +43,7 @@ def main():
         
         parser.add_argument("--log_step_count_steps", default=1, help="Log each N steps", type=int)
         
-        parser.add_argument("--max_steps",default=4000, help="Max steps for training", type=int)
+        parser.add_argument("--max_steps",default=60000, help="Max steps for training", type=int)
        
         parser.add_argument("--max_epochs", default=5000, help="Max epochs during training", type=int)
                 
