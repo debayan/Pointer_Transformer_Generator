@@ -41,7 +41,6 @@ def train(params):
                 num_layers=params["num_layers"], d_model=params["model_depth"], num_heads=params["num_heads"], dff=params["dff"], 
                 vocab_size=params["vocab_size"], batch_size=params["batch_size"])
 
-
         tf.compat.v1.logging.info("Creating the batcher ...")
         ids = [x for x in range(1,3254)]
         length = int(len(ids)/5) #length of each fold
@@ -95,8 +94,17 @@ def test(params):
             folds += [ids[i*length:(i+1)*length]]
         folds += [ids[5*length:len(ids)]]
         testids = folds[params['fold']-1]
+        trainids_ = []
+        for i in range(5):
+            if params['fold'] - 1 == i:
+                continue
+            trainids_ += folds[i]
+        trainids = trainids_#[:2275]
+        #devids = trainids_[2275:]
         print("fold:",params['fold'])
-        print("testids:",testids,len(testids))
+        #print("trainids:", trainids,len(trainids))
+        #print("testids:",testids,len(testids))
+
         assert not params["training"], "change training mode to false"
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
         logdir = "{}/logdir".format(params["model_dir"])
@@ -105,7 +113,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,testids), params, model)
-        f = open(params["model_dir"].strip("/")+'out.json','w')
+        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,trainids), params, model)
+        f = open(params["model_dir"].strip("/")+'trainout.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()
