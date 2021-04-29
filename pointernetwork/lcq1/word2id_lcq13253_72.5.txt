@@ -1,0 +1,1 @@
+{"select": 3, "distinct": 4, "?vr0": 5, "where": 6, "{": 7, "?vr1": 8, "<predpos@@1>": 9, "<entpos@@1>": 10, ".": 11, "<predpos@@2>": 12, "}": 13, "<entpos@@2>": 14, "count": 15, "(": 16, ")": 17, "<predpos@@3>": 18}
