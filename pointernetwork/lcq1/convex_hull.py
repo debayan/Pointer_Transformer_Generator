@@ -5,6 +5,7 @@ import time
 import os
 import json
 import sys
+import random
 from fuzzywuzzy import fuzz
 
 tf.app.flags.DEFINE_integer("batch_size", 5,"Batch size.")
@@ -13,7 +14,7 @@ tf.app.flags.DEFINE_integer("max_output_sequence_len", 100, "Maximum output sequ
 tf.app.flags.DEFINE_integer("rnn_size", 32, "RNN unit size.")
 tf.app.flags.DEFINE_integer("attention_size", 100, "Attention size.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers.")
-tf.app.flags.DEFINE_integer("beam_width", 2, "Width of beam search .")
+tf.app.flags.DEFINE_integer("beam_width", 5, "Width of beam search .")
 tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
 tf.app.flags.DEFINE_float("max_gradient_norm", 5.0, "Maximum gradient norm.")
 tf.app.flags.DEFINE_boolean("forward_only", False, "Forward Only.")

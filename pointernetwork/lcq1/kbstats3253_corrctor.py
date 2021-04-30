@@ -1,5 +1,5 @@
 import sys,os,json,rdflib,re,copy,requests
-from ptrcorrector.convex_hull import ConvexHull
+from ptrcorrector import convex_hull 
 
 
 def calcf1(target,answer):
@@ -44,7 +44,7 @@ def calcf1(target,answer):
              
 def hitkg(query):
     try:
-        url = 'http://localhost:8892/sparql/'
+        url = 'http://ltcpu1:8892/sparql/'
         print(query)
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
@@ -57,7 +57,10 @@ def hitkg(query):
 
 querywrong = []
 
-ch = ConvexHull()
+modelnum = sys.argv[2]
+print(sys.argv[2])
+
+ch = convex_hull.ConvexHull(modelnum)
 def replace(query,ents,rels):
     queryout = query
     for idx1,ent in enumerate(ents):
@@ -77,17 +80,6 @@ def empty(r):
     return False
 
 
-#load 3253
-ques3253 = {}
-f = open('Question-SPARQL_3253.csv')
-for line in f.readlines():
-    id = int(line.strip().split(',')[0][2:-1])
-    sparql = ','.join(line.strip().split(',')[1:]).replace('"','')
-    ques3253[id] = sparql
-f.close()
-
-goldd = {}
-goldq = {}
 
 d = json.loads(open(sys.argv[1]).read()) #eg: model_folder_test31.1out.json
 
@@ -115,8 +107,8 @@ for idx,item in enumerate(d):
     else:
         qnem += 1
         print("querynotmatch")
-    targ_ = target
-    ans_ = answer
+    targ_ = item['querytemptar']
+    ans_ = item['querytempans']
     target = replace(target,ents,rels)
     print("replaced: ",target)
     answer = replace(answer,ents,rels)
@@ -150,7 +142,7 @@ for idx,item in enumerate(d):
         querywrong.append({'querytempans':ans_, 'querytemptar': targ_, 'queryans':answer,'querytar':target,'id':str(item['uid']),'question':item['question'],'ents':ents,'rels':rels,'resulttarget':resulttarget,'resultanswer':resultanswer})
     print("target_filled: ",target)
     print("answer_filled: ",answer)
-    print("original_quer: ",ques3253[item['uid']])
+#    print("original_quer: ",ques3253[item['uid']])
     print("gold: ",resulttarget)
     print("result: ",resultanswer)
     print('................')

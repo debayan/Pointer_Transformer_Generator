@@ -129,6 +129,6 @@ for idx,item in enumerate(d):
     print("querymatch: ",qem," querynotmatch: ",qnem)
     print("avg f1: ",avgf1)
 
-f = open(sys.argv[2],'w')
-f.write(json.dumps(querywrong,indent=4,sort_keys=True))
-f.close()
+#f = open(sys.argv[2],'w')
+#f.write(json.dumps(querywrong,indent=4,sort_keys=True))
+#f.close()
