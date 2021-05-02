@@ -6,16 +6,17 @@ import os
 import json
 import sys
 import random
+import kbstats3253_corrctor as kbcorrector
 from fuzzywuzzy import fuzz
 
 tf.app.flags.DEFINE_integer("batch_size", 5,"Batch size.")
 tf.app.flags.DEFINE_integer("max_input_sequence_len", 100, "Maximum input sequence length.")
 tf.app.flags.DEFINE_integer("max_output_sequence_len", 100, "Maximum output sequence length.")
 tf.app.flags.DEFINE_integer("rnn_size", 32, "RNN unit size.")
-tf.app.flags.DEFINE_integer("attention_size", 100, "Attention size.")
+tf.app.flags.DEFINE_integer("attention_size", 50, "Attention size.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers.")
 tf.app.flags.DEFINE_integer("beam_width", 5, "Width of beam search .")
-tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
+tf.app.flags.DEFINE_float("learning_rate", 0.005, "Learning rate.")
 tf.app.flags.DEFINE_float("max_gradient_norm", 5.0, "Maximum gradient norm.")
 tf.app.flags.DEFINE_boolean("forward_only", False, "Forward Only.")
 #tf.app.flags.DEFINE_string("log_dir", "./log", "Log directory")
@@ -33,18 +34,20 @@ class ConvexHull(object):
     self.graph = tf.Graph()
     self.testgraph = tf.Graph()
     with self.graph.as_default():
-      self.sess = tf.Session()
+      config = tf.ConfigProto()
+      config.gpu_options.allow_growth = True
+      self.sess = tf.Session(config=config)
     with self.testgraph.as_default():
       config = tf.ConfigProto()
       config.gpu_options.allow_growth = True
-      config.operation_timeout_in_ms=100
+      config.operation_timeout_in_ms=6000
       self.testsess = tf.Session(config=config)
     self.build_model()
     data = open(FLAGS.data_path).readlines()
     size = len(data)
     self.read_data(data[:int(0.8*size)])
     self.test_read_data(data[int(0.8*size):])
-    self.id2word = json.loads(open('id2word_lcq13253_'+FLAGS.modelnum+'.txt').read())
+    self.id2word = json.loads(open('id2word_lcq13253_w_'+FLAGS.modelnum+'.txt').read())
     
 
   def read_data(self, recs):
@@ -194,7 +197,8 @@ class ConvexHull(object):
     step_time = 0.0
     loss = 0.0
     current_step = 0
-    bestfuzz = 0
+    bestf1 = 0
+    bestmodel = None
     while True:
       start_time = time.time()
       inputs,enc_input_weights, outputs, dec_input_weights = \
@@ -234,12 +238,17 @@ class ConvexHull(object):
         if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
           print("Load model parameters from %s" % ckpt.model_checkpoint_path)
           self.testmodel.saver.restore(self.testsess, ckpt.model_checkpoint_path) 
-          fuzz = self.eval()
-          print("fuzz: ",fuzz)
-          if fuzz > bestfuzz:
-            print(fuzz," better than ",bestfuzz)
-            bestfuzz = fuzz
-            self.model.saver.save(self.sess, os.path.join(FLAGS.log_dir+'/solid/', "convex_hull_%f.ckpt"%(fuzz)), global_step=self.model.global_step) 
+          #fuzz = self.eval()
+          f1 = kbcorrector.f1eval('74/model_folder_test'+FLAGS.modelnum+'out.json',FLAGS.modelnum)
+          print("f1: ",f1)
+          if f1 and f1 > bestf1:
+            print(f1," better than ",bestf1)
+            bestf1 = f1
+            print("convex_hull_%f.ckpt best so far"%(f1))
+            bestmodel = "convex_hull_%f.ckpt best so far"%(f1)
+            self.model.saver.save(self.sess, os.path.join(FLAGS.log_dir+'/solid/', "convex_hull_%f.ckpt"%(f1)), global_step=self.model.global_step)
+          else:
+            print("best model so far: ", bestmodel)
         
   def eval(self):
     """ Randomly get a batch of data and output predictions """  
