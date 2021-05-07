@@ -1,8 +1,10 @@
 import sys,os,json,rdflib,re,copy,requests
-from ptrcorrector.convex_hull import ConvexHull
+from ptrcorrector import convex_hull 
 
 
 def calcf1(target,answer):
+    if not target:
+        return 0.0
     if target == answer:
         return 1.0
     try:
@@ -42,22 +44,25 @@ def calcf1(target,answer):
         return f1 
         
              
-def hitkg(query):
+def hitkg(query,typeq):
     try:
-        url = 'http://localhost:8892/sparql/'
+        url = 'http://134.100.15.203:8892/sparql/'
         print(query)
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
         #print(entid,json_format)
         results = json_format
+        if not results and typeq == 'target':
+            print("no response")
+            sys.exit(1)
         return results
     except Exception as err:
         print(err)
+        if typeq == 'target':
+            print("no response on target")
+            sys.exit(1)
         return ''
 
-querywrong = []
-
-ch = ConvexHull()
 def replace(query,ents,rels):
     queryout = query
     for idx1,ent in enumerate(ents):
@@ -77,85 +82,86 @@ def empty(r):
     return False
 
 
-#load 3253
-ques3253 = {}
-f = open('Question-SPARQL_3253.csv')
-for line in f.readlines():
-    id = int(line.strip().split(',')[0][2:-1])
-    sparql = ','.join(line.strip().split(',')[1:]).replace('"','')
-    ques3253[id] = sparql
-f.close()
+def start(filename, modelnum):
+    d = json.loads(open(filename).read()) #eg: model_folder_test31.1out.json
+    ch = convex_hull.ConvexHull(modelnum)    
+    em = 0
+    nem = 0
+    qem = 0
+    qnem = 0
+    totf1 = 0.0
+    testqcount = 0
+    for idx,item in enumerate(d):
+        print(item)
+        print(str(item['uid']))
+        print(item['question'])
+        target = item['target']
+        answer = item['answer']
+        ents = item['goldents']
+        rels = item['goldrels']
+        print("ents: ",ents)
+        print("rels: ",rels)
+        print("target: ",target)
+        print("answer: ",answer)
+        if target == answer:
+            qem += 1
+            print("querymatch")
+        else:
+            qnem += 1
+            print("querynotmatch")
+        targ_ = item['querytemptar']
+        ans_ = item['querytempans']
+        target = replace(target,ents,rels)
+        print("replaced: ",target)
+        answer = replace(answer,ents,rels)
+        print("replaced: ",answer)
+        resulttarget = hitkg(target,'target')
+        resultanswer = hitkg(answer,'answer')
+        wans_ = item['question'].split(' ')[0] + ' ' + ans_
+        if empty(resultanswer):
+            print("no answer")
+            print("sending to corrector: ",wans_)
+            for query in ch.correct(wans_):
+                print("alternatequery: ", query)
+                q = replace(query,ents,rels)
+                print("replaces: ",q)
+                try:
+                    res = hitkg(q,'answer')
+                    print("result: ",res)
+                except Exception as err:
+                    print(err)
+                    continue
+                if not empty(res):
+                    resultanswer = res
+                    break
+        f1  = calcf1(resulttarget,resultanswer)
+        totf1 += f1
+        avgf1 = totf1/float(idx+1)
+        if resulttarget == resultanswer:
+            print("match")
+            em += 1
+        else:
+            print("nomatch")
+            nem += 1
+        print("target_filled: ",target)
+        print("answer_filled: ",answer)
+    #    print("original_quer: ",ques3253[item['uid']])
+        print("gold: ",resulttarget)
+        print("result: ",resultanswer)
+        print('................')
+        print("exactmatch: ",em, "  notmatch: ",nem," total: ",idx)
+        print("querymatch: ",qem," querynotmatch: ",qnem)
+        print("avg f1: ",avgf1)
+    return avgf1
 
-goldd = {}
-goldq = {}
-
-d = json.loads(open(sys.argv[1]).read()) #eg: model_folder_test31.1out.json
-
-em = 0
-nem = 0
-qem = 0
-qnem = 0
-totf1 = 0.0
-testqcount = 0
-for idx,item in enumerate(d):
-    print(item)
-    print(str(item['uid']))
-    print(item['question'])
-    target = item['target']
-    answer = item['answer']
-    ents = item['goldents']
-    rels = item['goldrels']
-    print("ents: ",ents)
-    print("rels: ",rels)
-    print("target: ",target)
-    print("answer: ",answer)
-    if target == answer:
-        qem += 1
-        print("querymatch")
-    else:
-        qnem += 1
-        print("querynotmatch")
-    targ_ = target
-    ans_ = answer
-    target = replace(target,ents,rels)
-    print("replaced: ",target)
-    answer = replace(answer,ents,rels)
-    print("replaced: ",answer)
-    resulttarget = hitkg(target)
-    resultanswer = hitkg(answer)
-    if empty(resultanswer):
-        print("no answer")
-        for query in ch.correct(ans_):
-            print("alternatequery: ", query)
-            q = replace(query,ents,rels)
-            print("replaces: ",q)
-            try:
-                res = hitkg(q)
-                print("result: ",res)
-            except Exception as err:
-                print(err)
-                continue
-            if not empty(res):
-                resultanswer = res
-                break
-    f1  = calcf1(resulttarget,resultanswer)
-    totf1 += f1
-    avgf1 = totf1/float(idx+1)
-    if resulttarget == resultanswer:
-        print("match")
-        em += 1
-    else:
-        print("nomatch")
-        nem += 1
-        querywrong.append({'querytempans':ans_, 'querytemptar': targ_, 'queryans':answer,'querytar':target,'id':str(item['uid']),'question':item['question'],'ents':ents,'rels':rels,'resulttarget':resulttarget,'resultanswer':resultanswer})
-    print("target_filled: ",target)
-    print("answer_filled: ",answer)
-    print("original_quer: ",ques3253[item['uid']])
-    print("gold: ",resulttarget)
-    print("result: ",resultanswer)
-    print('................')
-    print("exactmatch: ",em, "  notmatch: ",nem," total: ",idx)
-    print("querymatch: ",qem," querynotmatch: ",qnem)
-    print("avg f1: ",avgf1)
+def f1eval(filename, modelnum):
+    try:
+        return start(filename, modelnum)
+    except Exception as err:
+        print(err)
 
 
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    modelnum = sys.argv[2]
+    f1eval(filename, modelnum)

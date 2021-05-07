@@ -20,6 +20,11 @@ for item in d:
             word2id[w] = wcount
             id2word[wcount] = w
             wcount += 1
+    w = item['question'].split(' ')[0]
+    if w not in word2id:
+        word2id[w] = wcount
+        id2word[wcount] = w
+        wcount += 1 
 master = []
 for item in d:
     if 'UNK' in item['querytempans'] or 'UNK' in item['querytemptar']:
@@ -27,6 +32,8 @@ for item in d:
     if item['querytempans'] == item['querytemptar']:
         continue
     arr = []
+    w = item['question'].split(' ')[0]
+    arr.append(str(word2id[w]))
     for w in item['querytempans'].split():
         arr.append(str(word2id[w]))
     arr.append(str(-1))
@@ -46,15 +53,15 @@ for item in d:
     print(item['querytemptar'])
     master.append(arr)
 
-f = open('input_lcq13253_'+id+'.txt','w')
+f = open('input_lcq13253_w_'+id+'.txt','w')
 for x in master:
     f.write(' '.join(x)+'\n')
 f.close()
 
-f = open('id2word_lcq13253_'+id+'.txt','w')
+f = open('id2word_lcq13253_w_'+id+'.txt','w')
 f.write(json.dumps(id2word))
 f.close()
 
-f = open('word2id_lcq13253_'+id+'.txt','w')
+f = open('word2id_lcq13253_w_'+id+'.txt','w')
 f.write(json.dumps(word2id))
 f.close()
