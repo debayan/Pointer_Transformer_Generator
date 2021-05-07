@@ -180,7 +180,7 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
                 print("qcount: ",qcount)
                 #print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
             print("testidx: ",testidx)
-            if testidx > 3:
+            if testidx > 1:
                 break
         except Exception as err:
             print("er: ",err)
@@ -206,7 +206,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         totf1 = 0
         devavgf1 = 0.0
         testavgf1 = 0.0
-        if ckptstep%1000 == 0 and ckptstep > 1:
+        if ckptstep%100 == 0 and ckptstep > 1:
             devavgf1 = 0#f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
             print("devf1:",devavgf1)
             testavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep)
@@ -217,7 +217,7 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
 def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager, summary_writer, trainids):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
-        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.01)
+        optimizer = tf.keras.optimizers.Adam(0.0005, beta_1=0.9, beta_2=0.98, epsilon=0.01)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
@@ -233,7 +233,7 @@ def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_mana
                                 t0 = time.time()
                                 devf1,testf1 = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
                                 t1 = time.time()
-                                if ckpt.step%1000 == 0 and ckpt.step > 1:
+                                if ckpt.step%100 == 0 and ckpt.step > 1:
                                     if testf1 > besttestf1:
                                         print("Best test f1 so far: %f"%(testf1))
                                         besttestf1 = testf1

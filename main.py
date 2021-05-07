@@ -41,7 +41,7 @@ def main():
 
         parser.add_argument("--max_steps",default=600000, help="Max steps for training", type=int)
        
-        parser.add_argument("--max_epochs", default=500, help="Max epochs during training", type=int)
+        parser.add_argument("--max_epochs", default=1500, help="Max epochs during training", type=int)
                 
         parser.add_argument("--save_summary_steps", default=1000, help="Save summaries every N steps", type=int)
         
