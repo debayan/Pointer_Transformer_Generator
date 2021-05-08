@@ -4,8 +4,21 @@ from utils import create_masks
 from data_helper import Vocab
 from fuzzywuzzy import fuzz
 import requests
+import time
+
+
+def empty(r):
+    if 'boolean' not in r:
+        if 'results' in r:
+            if 'bindings' in r['results']:
+                if not r['results']['bindings']:
+                    return True
+    return False
+
 
 def calcf1(target,answer):
+    if not target or empty(target):
+        return 0.0
     if target == answer:
         return 1.0
     try:
@@ -46,12 +59,12 @@ def calcf1(target,answer):
    
 def hitkg(query):
     try:
-        url = 'http://ltcpu1:8892/sparql/'
-        #print(query)
-        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> ' + query
+        url = 'https://query.wikidata.org/sparql'
+#        query = 'PREFIX wd: <http://www.wikidata.org/entity/> wdt: <http://www.wikidata.org/prop/direct/> p: <http://www.wikidata.org/prop/> ps: <http://www.wikidata.org/prop/statement/> pq: <http://www.wikidata.org/prop/qualifier/> ' + query
+        print(query)
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
-        #print(entid,json_format)
+        print(json_format)
         results = json_format
         return results
     except Exception as err:
@@ -88,6 +101,7 @@ def predict(featuress, params, model):
             # as its input.
             output = tf.concat([output, predicted_id], axis=-1)
         for answer,target,uid,question,oov,ents,rels in zip(output,labels["dec_target"],features["uid"],features["question"],features["question_oovs"],features['ents'],features['rels']):
+            time.sleep(0.1)
             resd = {}
             try:
                 answerclean = answer[1:]
@@ -124,7 +138,7 @@ def predict(featuress, params, model):
                 for idx1,rel in enumerate(rels_):
                     if rel:
                         target_ = target_.replace('predpos@@'+str(idx1+1),rel)
-                resulttarget = hitkg(target_)
+                #resulttarget = hitkg(target_)
                 for idx1,ent in enumerate(ents_):
                     if ent:
                         answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
@@ -132,7 +146,7 @@ def predict(featuress, params, model):
                     if rel:
                         answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
                 resultanswer = hitkg(answer_)
-                f1  = calcf1(resulttarget,resultanswer)
+                f1  = 0#calcf1(resulttarget,resultanswer)
                 totf1 += f1
                 avgf1 = totf1/float(qcount)
                 print("uid: ",int(uid.numpy()))
@@ -144,7 +158,7 @@ def predict(featuress, params, model):
                 print("goldents: ", ents_)
                 print("goldrels: ", rels_)
                 print("exactmatch: ",em)
-                print("targetkg: ",resulttarget)
+                #print("targetkg: ",resulttarget)
                 print("answerkg: ",resultanswer)
                 print("f1 = ",f1)
                 print("avgf1 = ",avgf1)
@@ -162,5 +176,6 @@ def predict(featuress, params, model):
                 retarr.append(resd)
                 continue
         print("avg fuzz after %d questions = %f"%(qcount,float(totalfuzz)/qcount))
+        print("exact match = %f"%(em))
     return output, attention_weights, retarr
  

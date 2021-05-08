@@ -6,20 +6,17 @@ from data_helper import Vocab, Data_Helper
 from vectorisermix import Vectoriser
 
 
-def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len, validids):
+def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len):
         vocab = Vocab(vocab_path, vocab_size)
         #d = json.loads(open(filename).read())
         linecount = 1
         with open(filename) as file_in:
                 for line in file_in:
-                        if linecount not in validids:
-                            linecount += 1
-                            continue
                         linecount += 1
                         linearr = json.loads(line.strip())
                         uid = linearr[0]
                         question = linearr[1]
-                        intermediate_sparql = linearr[8]
+                        intermediate_sparql = linearr[6]
                         if not question or not intermediate_sparql:
                                 continue
                         #remove parts after [SEP] for experimenting with non ent rel input
@@ -33,8 +30,6 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                         questionvectors = linearr[3]#[:idxrem]
                         ents = linearr[4]
                         rels = linearr[5]
-                        finents = linearr[6]
-                        finrels = linearr[7]
         
                         enc_input = questionvectors[:max_enc_len]
                         enc_len = len(enc_input)
@@ -49,7 +44,7 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
                             intermediate_sparql = intermediate_sparql.replace(ent,'entpos@@'+str(ents.index(ent)+1))
                         for idx,rel in enumerate(rels):
                             intermediate_sparql = intermediate_sparql.replace(rel,'predpos@@'+str(rels.index(rel)+1))
-                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('(',' ( ').replace('vr0)','vr0 )').replace('vr1)','vr1 )')
+                        intermediate_sparql = intermediate_sparql.replace('{',' { ').replace('}',' } ').replace('vr0.','vr0 .').replace('vr1.','vr1 .').replace('(',' ( ').replace(')',' ) ')
                         #sparqladd = ' [sep] ' + ' '.join(ents) + ' [sep] ' + ' '.join(rels)
                         #intermediate_sparql += sparqladd
                      
@@ -86,8 +81,8 @@ def example_generator(filename, vocab_path, vocab_size, max_enc_len, max_dec_len
         
                         yield output
 
-def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size, validids):
-        dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, validids ],
+def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len, batch_size):
+        dataset = tf.data.Dataset.from_generator(generator, args = [filenames, vocab_path,  vocab_size, max_enc_len, max_dec_len ],
                                                                                         output_types = {
                                                                                                 "uid":tf.int32,
                                                                                                 "enc_len":tf.int32,
@@ -168,10 +163,10 @@ def batch_generator(generator, f, filenames, vocab_path,  vocab_size, max_enc_le
         return dataset
 
 
-def entitybatcher(data_path, vocab_path, hpm, validids):
+def entitybatcher(data_path, vocab_path, hpm):
         print(data_path)
         f = open(data_path)
-        dataset = batch_generator(example_generator, f, data_path, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"], validids )
+        dataset = batch_generator(example_generator, f, data_path, vocab_path, hpm["vocab_size"], hpm["max_enc_len"], hpm["max_dec_len"], hpm["batch_size"] )
         f.close()
         return dataset
 

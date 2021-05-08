@@ -100,6 +100,7 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
     qcount = 0
     totf1 = 0
     avgf1 = 0.0
+    avgfuzz = 0
     totalfuzznonbeam = 0
     vocab = Vocab(params['vocab_path'], params['vocab_size'])
     for testidx,testbatch in enumerate(batcher):
@@ -150,41 +151,42 @@ def f1(features, labels, params, model, optimizer, loss_object, train_loss_metri
                 nonbeamanswer_ = ' '.join(words)
                 answer_ = nonbeamanswer_
                 totalfuzznonbeam += fuzz.ratio(target_.lower(), nonbeamanswer_.lower())
-                ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
-                rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
-                for idx1,ent in enumerate(ents_):
-                    if ent:
-                        target_ = target_.replace('entpos@@'+str(idx1+1),ent)
-                for idx1,rel in enumerate(rels_):
-                    if rel:
-                        target_ = target_.replace('predpos@@'+str(idx1+1),rel)
-                resulttarget = hitkg(target_,'target')
-                for idx1,ent in enumerate(ents_):
-                    if ent:
-                        answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
-                for idx1,rel in enumerate(rels_):
-                    if rel:
-                        answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
-                resultanswer = hitkg(answer_,'answer')
-
-                f1  = calcf1(resulttarget,resultanswer)
-                totf1 += f1
                 qcount += 1
-                avgf1 = totf1/float(qcount)
+                avgfuzz = totalfuzznonbeam/float(qcount)
+#                ents_ = [ent.decode('utf-8') for ent in ents.numpy()]
+#                rels_ = [rel.decode('utf-8') for rel in rels.numpy()]
+#                for idx1,ent in enumerate(ents_):
+#                    if ent:
+#                        target_ = target_.replace('entpos@@'+str(idx1+1),ent)
+#                for idx1,rel in enumerate(rels_):
+#                    if rel:
+#                        target_ = target_.replace('predpos@@'+str(idx1+1),rel)
+#                resulttarget = hitkg(target_,'target')
+#                for idx1,ent in enumerate(ents_):
+#                    if ent:
+#                        answer_ = answer_.replace('entpos@@'+str(idx1+1),ent)
+#                for idx1,rel in enumerate(rels_):
+#                    if rel:
+#                        answer_ = answer_.replace('predpos@@'+str(idx1+1),rel)
+#                resultanswer = hitkg(answer_,'answer')
+#
+#                f1  = calcf1(resulttarget,resultanswer)
+#                totf1 += f1
+#                avgf1 = totf1/float(qcount)
                 print("target: ", target_)
                 print("answer: ", answer_)
-                print("target: ",resulttarget)
-                print("answer: ",resultanswer)
-                print("f1: ",f1)
-                print("avgf1: ",avgf1)
-                print("qcount: ",qcount)
-                #print("nonbeam avg fuzz after %d questions = %f"%(qcount,float(totalfuzznonbeam)/qcount))
-            print("testidx: ",testidx)
-            if testidx > 1:
+#                print("target: ",resulttarget)
+#                print("answer: ",resultanswer)
+#                print("f1: ",f1)
+#                print("avgf1: ",avgf1)
+#                print("qcount: ",qcount)
+                print("nonbeam avg fuzz after %d questions = %f"%(qcount,avgfuzz))
+#            print("testidx: ",testidx)
+            if testidx > 4:
                 break
         except Exception as err:
             print("er: ",err)
-    return avgf1
+    return avgfuzz
 
 
 def train_step(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher, testbatcher, ckptstep):
@@ -201,58 +203,40 @@ def train_step(features, labels, params, model, optimizer, loss_object, train_lo
         optimizer.apply_gradients(zip(gradients, model.trainable_variables))
         train_loss_metric(loss)
         qcount = 0
-        totalfuzz = 0.0
-        totalfuzznonbeam = 0.0
-        totf1 = 0
-        devavgf1 = 0.0
-        testavgf1 = 0.0
+        valfuzz = 0.0
         if ckptstep%100 == 0 and ckptstep > 1:
-            devavgf1 = 0#f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, devbatcher,  ckptstep)
-            print("devf1:",devavgf1)
-            testavgf1 = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep)
-            print("testf1:",testavgf1)
-        return devavgf1,testavgf1
+            valfuzz = f1(features, labels, params, model, optimizer, loss_object, train_loss_metric, batchcount, testbatcher, ckptstep)
+            print("valfuzz:",valfuzz)
+        return valfuzz
 
 
-def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager, summary_writer, trainids):
+def train_model(model, batcher, devbatcher, testbatcher, params, ckpt, ckpt_manager, summary_writer):
         learning_rate = CustomSchedule(params["model_depth"])
         #optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, epsilon=0.1)  
-        optimizer = tf.keras.optimizers.Adam(0.0005, beta_1=0.9, beta_2=0.98, epsilon=0.01)
+        optimizer = tf.keras.optimizers.Adam(0.001, beta_1=0.9, beta_2=0.98, epsilon=0.01)
         loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False, reduction='none')
         train_loss_metric = tf.keras.metrics.Mean(name="train_loss_metric")
 
         try:
-                bestdevf1 = 0.0
-                bestdevtestf1 = 0.0
-                besttestf1 = 0.0
+                bestvalfuzz = 0.0
                 epoch = 0
-                curriculumcount = {}
                 while epoch < params["max_epochs"] and int(ckpt.step) < params["max_steps"]:
                         epoch += 1
                         for idx,batch in enumerate(batcher):
                                 t0 = time.time()
-                                devf1,testf1 = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
+                                valfuzz = train_step(batch[0], batch[1], params, model, optimizer, loss_object, train_loss_metric, idx, devbatcher, testbatcher, ckpt.step)
                                 t1 = time.time()
                                 if ckpt.step%100 == 0 and ckpt.step > 1:
-                                    if testf1 > besttestf1:
-                                        print("Best test f1 so far: %f"%(testf1))
-                                        besttestf1 = testf1
+                                    if valfuzz > bestvalfuzz:
+                                        print("Best valfuzz so far: %f"%(valfuzz))
+                                        bestvalfuzz = valfuzz
                                         ckpt_manager.save(checkpoint_number=int(ckpt.step))
                                         print("Saved checkpoint for step {}".format(int(ckpt.step)))
-                                    #if devf1 > bestdevf1:
-                                    #    bestdevf1 = devf1
-                                    #    print("Best dev f1 so far: %f"%(devf1))
-                                    #    bestdevtestf1 = testf1
-#                                        ckpt_manager.save(checkpoint_number=int(ckpt.step))
-#                                        print("Saved checkpoint for step {}".format(int(ckpt.step)))
-                                    print("testf1: %f - devf1: %f - bestdevf1: %f - bestdevtestf1: %f - besttestf1 %f "%(testf1,devf1,bestdevf1,bestdevtestf1,besttestf1))
+                                    print("valfuzz: %f - bestvalfuzz: %f "%(valfuzz,bestvalfuzz))
                                     with summary_writer.as_default():
                                         #tf.summary.scalar('devf1', devf1,step=int(ckpt.step))
-                                        tf.summary.scalar('testf1', testf1,step=int(ckpt.step))
+                                        tf.summary.scalar('valfuzz', valfuzz,step=int(ckpt.step))
                                         tf.summary.scalar('train_loss', train_loss_metric.result(), step=int(ckpt.step))
-                                        #tf.summary.scalar('bestdevf1', bestdevf1, step=int(ckpt.step))   
-                                        #tf.summary.scalar('besttestf1', besttestf1,step=int(ckpt.step))
-                                        #tf.summary.scalar('bestdevtestf1', bestdevtestf1,step=int(ckpt.step))
                                 print("epoch {} step {}, time : {}, loss: {}".format(epoch,int(ckpt.step), t1-t0, train_loss_metric.result()))
                                 ckpt.step.assign_add(1)
 

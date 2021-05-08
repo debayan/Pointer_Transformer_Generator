@@ -44,25 +44,9 @@ def train(params):
         tf.compat.v1.logging.info("Creating the batcher ...")
         ids = [x for x in range(1,3254)]
         length = int(len(ids)/5) #length of each fold
-        folds = []
-        for i in range(5):
-            folds += [ids[i*length:(i+1)*length]]
-        folds += [ids[5*length:len(ids)]]
-        testids = folds[params['fold']-1]
-        trainids_ = []
-        for i in range(5):
-            if params['fold'] - 1 == i:
-                continue
-            trainids_ += folds[i]
-        trainids = trainids_#[:2275]
-        #devids = trainids_[2275:]
-        print("fold:",params['fold'])
-        print("trainids:", trainids,len(trainids))
-        print("testids:",testids,len(testids))
-       # print("devids:",devids,len(devids)) 
-        b = entitybatcher(params["data_dir"], params["vocab_path"], params, trainids) #curricullum 1
+        b = entitybatcher(params["data_dir"], params["vocab_path"], params) #curricullum 1
         devb = None#entitybatcher(params["data_dir"], params["vocab_path"],params, devids)
-        testb = entitybatcher(params["data_dir"], params["vocab_path"],params, testids)
+        testb = entitybatcher(params["test_dir"], params["vocab_path"],params)
 
         tf.compat.v1.logging.info("Creating the checkpoint manager")
         logdir = "{}/logdir".format(params["model_dir"])
@@ -78,7 +62,7 @@ def train(params):
                 print("Initializing from scratch.")
 
         tf.compat.v1.logging.info("Starting the training ...")
-        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager, summary_writer, trainids)
+        train_model(transformer, b, devb, testb, params, ckpt, ckpt_manager, summary_writer)
  
 
 
@@ -87,23 +71,6 @@ def eval(model, params):
 
 
 def test(params):
-        ids = [x for x in range(1,3254)]
-        length = int(len(ids)/5) #length of each fold
-        folds = []
-        for i in range(5):
-            folds += [ids[i*length:(i+1)*length]]
-        folds += [ids[5*length:len(ids)]]
-        testids = folds[params['fold']-1]
-        trainids_ = []
-        for i in range(5):
-            if params['fold'] - 1 == i:
-                continue
-            trainids_ += folds[i]
-        trainids = trainids_#[:2275]
-        #devids = trainids_[2275:]
-        print("fold:",params['fold'])
-        #print("trainids:", trainids,len(trainids))
-        #print("testids:",testids,len(testids))
 
         assert not params["training"], "change training mode to false"
         checkpoint_dir = "{}/checkpoint".format(params["model_dir"])
@@ -113,7 +80,7 @@ def test(params):
         ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_dir, max_to_keep=11)
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("Restored from {}".format(ckpt_manager.latest_checkpoint))
-        out,att,retarr = predict(entitybatcher(params["data_dir"], params["vocab_path"], params,testids), params, model)
+        out,att,retarr = predict(entitybatcher(params["test_dir"], params["vocab_path"], params), params, model)
         f = open(params["model_dir"].strip("/")+'out.json','w')
         f.write(json.dumps(retarr,indent=4,sort_keys=True))
         f.close()
