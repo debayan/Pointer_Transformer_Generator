@@ -33,6 +33,7 @@ def calcf1(target,answer):
             print("boolean true/false match")
             f1 = 1.0
             print("f1: ",f1)
+            return f1
         if target['boolean'] != answer['boolean']:
             print("boolean true/false mismatch")
             f1 = 0.0
