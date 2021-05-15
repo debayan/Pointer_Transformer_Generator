@@ -3,7 +3,7 @@ import sys,os,json,rdflib,re,copy,requests
 
 
 def calcf1(target,answer):
-    if not target:
+    if empty(target):
         return 0.0
     if target == answer:
         return 1.0
@@ -33,6 +33,7 @@ def calcf1(target,answer):
             print("boolean true/false match")
             f1 = 1.0
             print("f1: ",f1)
+            return f1
         if target['boolean'] != answer['boolean']:
             print("boolean true/false mismatch")
             f1 = 0.0
@@ -46,8 +47,8 @@ def calcf1(target,answer):
              
 def hitkg(query):
     try:
-        url = 'http://ltdocker:8894/sparql/'
-        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> PREFIX yago: <http://dbpedia.org/class/yago/> ' + query
+        url = 'http://ltdocker:8894/sparql'
+        query = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dbo: <http://dbpedia.org/ontology/>  PREFIX res: <http://dbpedia.org/resource/> PREFIX dbp: <http://dbpedia.org/property/> PREFIX yago: <http://dbpedia.org/class/yago/> PREFIX foaf: <http://xmlns.com/foaf/0.1/>  ' + query
         #print(query)
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
@@ -57,6 +58,16 @@ def hitkg(query):
     except Exception as err:
         print(err)
         return ''
+
+def empty(r):
+    if not r:
+        return True
+    if 'boolean' not in r:
+        if 'results' in r:
+            if 'bindings' in r['results']:
+                if not r['results']['bindings']:
+                    return True
+    return False
 
 #goldd = {}
 #goldq = {}

@@ -1,8 +1,10 @@
 import sys,os,json,rdflib,re,copy,requests
-from ptrcorrector.convex_hull import ConvexHull
+from ptrcorrector import convex_hull 
 
 
 def calcf1(target,answer):
+    if not target:
+        return 0.0
     if target == answer:
         return 1.0
     try:
@@ -44,8 +46,12 @@ def calcf1(target,answer):
              
 def hitkg(query):
     try:
-        url = 'http://localhost:8892/sparql/'
-        #print(query)
+        url = 'http://ltdocker:8894/sparql/'
+        query = ''' PREFIX dbo: <http://dbpedia.org/ontology/>  
+PREFIX res: <http://dbpedia.org/resource/>  
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>  
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+PREFIX dbp:  <http://dbpedia.org/property/>  ''' + query
         r = requests.get(url, params={'format': 'json', 'query': query})
         json_format = r.json()
         #print(entid,json_format)
@@ -55,22 +61,12 @@ def hitkg(query):
         print(err)
         return ''
 
-goldd = {}
-goldq = {}
-d = json.loads(open(sys.argv[1]).read()) # test-data.json  (lcq1 test file)
-
-for item in d:
-    result = hitkg(item['sparql_query'])
-#    print(item)
-#    print(result)
-    goldd[str(item['_id'])] = result
-    goldq[str(item['_id'])] = item['sparql_query']
-
-d = json.loads(open(sys.argv[2]).read()) #eg: model_folder_test31.1out.json
-
 querywrong = []
 
-ch = ConvexHull()
+modelnum = sys.argv[2]
+print(sys.argv[2])
+
+ch = convex_hull.ConvexHull(modelnum)
 def replace(query,ents,rels):
     queryout = query
     for idx1,ent in enumerate(ents):
@@ -88,13 +84,17 @@ def empty(r):
                 if not r['results']['bindings']:
                     return True
     return False
-       
+
+
+
+d = json.loads(open(sys.argv[1]).read()) #eg: model_folder_test31.1out.json
 
 em = 0
 nem = 0
 qem = 0
 qnem = 0
 totf1 = 0.0
+testqcount = 0
 for idx,item in enumerate(d):
     print(item)
     print(str(item['uid']))
@@ -113,17 +113,19 @@ for idx,item in enumerate(d):
     else:
         qnem += 1
         print("querynotmatch")
-    targ_ = target
-    ans_ = answer
+    targ_ = item['querytemptar']
+    ans_ = item['querytempans']
     target = replace(target,ents,rels)
     print("replaced: ",target)
     answer = replace(answer,ents,rels)
     print("replaced: ",answer)
     resulttarget = hitkg(target)
     resultanswer = hitkg(answer)
+    wans_ = item['question'].split(' ')[0] + ' ' + ans_
     if empty(resultanswer):
         print("no answer")
-        for query in ch.correct(ans_):
+        print("sending to corrector: ",wans_)
+        for query in ch.correct(wans_):
             print("alternatequery: ", query)
             q = replace(query,ents,rels)
             print("replaces: ",q)
@@ -136,7 +138,10 @@ for idx,item in enumerate(d):
             if not empty(res):
                 resultanswer = res
                 break
-    f1  = calcf1(resulttarget,resultanswer)
+    if not empty(resulttarget):
+        f1  = calcf1(resulttarget,resultanswer)
+    else:
+        f1 = 0.0
     totf1 += f1
     avgf1 = totf1/float(idx+1)
     if resulttarget == resultanswer:
@@ -148,7 +153,7 @@ for idx,item in enumerate(d):
         querywrong.append({'querytempans':ans_, 'querytemptar': targ_, 'queryans':answer,'querytar':target,'id':str(item['uid']),'question':item['question'],'ents':ents,'rels':rels,'resulttarget':resulttarget,'resultanswer':resultanswer})
     print("target_filled: ",target)
     print("answer_filled: ",answer)
-    print("original_quer: ",goldq[str(item['uid'])])
+#    print("original_quer: ",ques3253[item['uid']])
     print("gold: ",resulttarget)
     print("result: ",resultanswer)
     print('................')
@@ -156,6 +161,4 @@ for idx,item in enumerate(d):
     print("querymatch: ",qem," querynotmatch: ",qnem)
     print("avg f1: ",avgf1)
 
-#f = open(sys.argv[3],'w')
-#f.write(json.dumps(querywrong,indent=4,sort_keys=True))
-#f.close()
+
