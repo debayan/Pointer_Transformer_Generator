@@ -3,7 +3,7 @@ from ptrcorrector import convex_hull
 
 
 def calcf1(target,answer):
-    if not target:
+    if empty(target):
         return 0.0
     if target == answer:
         return 1.0
@@ -33,6 +33,7 @@ def calcf1(target,answer):
             print("boolean true/false match")
             f1 = 1.0
             print("f1: ",f1)
+            return f1
         if target['boolean'] != answer['boolean']:
             print("boolean true/false mismatch")
             f1 = 0.0
@@ -60,7 +61,7 @@ def hitkg(query,typeq):
         print(err)
         if typeq == 'target':
             print("no response on target")
-            sys.exit(1)
+            #sys.exit(1)
         return ''
 
 def replace(query,ents,rels):
