@@ -75,6 +75,8 @@ def replace(query,ents,rels):
     return queryout
 
 def empty(r):
+    if not r:
+        return True
     if 'boolean' not in r:
         if 'results' in r:
             if 'bindings' in r['results']:
