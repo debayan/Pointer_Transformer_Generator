@@ -8,7 +8,7 @@ import sys
 import random
 from fuzzywuzzy import fuzz
 
-tf.app.flags.DEFINE_integer("batch_size", 5,"Batch size.")
+tf.app.flags.DEFINE_integer("batch_size", 10,"Batch size.")
 tf.app.flags.DEFINE_integer("max_input_sequence_len", 200, "Maximum input sequence length.")
 tf.app.flags.DEFINE_integer("max_output_sequence_len", 200, "Maximum output sequence length.")
 tf.app.flags.DEFINE_integer("rnn_size", 32, "RNN unit size.")

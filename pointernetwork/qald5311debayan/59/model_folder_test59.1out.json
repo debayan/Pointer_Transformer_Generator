@@ -1,0 +1,1428 @@
+[
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:occupation . ?vr0 dbo:author res:Poet . }",
+        "goldents": [
+            "res:Poet",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:occupation",
+            "dbo:author",
+            "dbo:Book",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . ?vr1 predpos@@2 ?vr0 . ?vr1 rdf:type predpos@@3 . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "question": "Which poet wrote the most books ?",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:occupation res:Poet . ?vr1 dbo:author ?vr0 . ?vr1 rdf:type dbo:Book . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "uid": 203
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Turkmenistan dbo:language ?vr0 . }",
+        "goldents": [
+            "res:Turkmenistan",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:language",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select count ( distinct ?vr0 ) where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "How many languages are spoken in Turkmenistan ?",
+        "target": "select count ( distinct ?vr0 ) where { res:Turkmenistan dbo:language ?vr0 . }",
+        "uid": 126
+    },
+    {
+        "answer": "select distinct ?vr0 where { yago:JamesBondFilms predpos@@1 ?vr0 . }",
+        "goldents": [
+            "yago:JamesBondFilms",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type entpos@@1 . }",
+        "question": "How many James Bond movies are there ?",
+        "target": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type yago:JamesBondFilms . }",
+        "uid": 238
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:locatedInArea . ?vr0 dbo:Country res:Mount_Everest . }",
+        "goldents": [
+            "res:Mount_Everest",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:locatedInArea",
+            "dbo:Country",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . ?vr0 rdf:type predpos@@2 . }",
+        "question": "What country is Mount Everest in ?",
+        "target": "select distinct ?vr0 where { res:Mount_Everest dbo:locatedInArea ?vr0 . ?vr0 rdf:type dbo:Country . }",
+        "uid": 261
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:John_F._Kennedy dbo:deathPlace ?vr0 . }",
+        "goldents": [
+            "res:John_F._Kennedy",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:deathPlace",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Where was JFK assassinated ?",
+        "target": "select distinct ?vr0 where { res:John_F._Kennedy dbo:deathPlace ?vr0 . }",
+        "uid": 283
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 dbo:occupation res:Surfing . { ?vr0 dbo:birthPlace res:Australia . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Australia . } }",
+        "goldents": [
+            "res:Surfing",
+            "res:Australia",
+            "res:Australia",
+            ""
+        ],
+        "goldrels": [
+            "dbo:occupation",
+            "dbo:birthPlace",
+            "dbo:birthPlace",
+            "dbo:country",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . { ?vr0 predpos@@2 entpos@@2 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . { ?vr0 predpos@@2 entpos@@2 . } union { ?vr0 predpos@@2 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } }",
+        "question": "Which professional surfers were born in Australia ?",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:occupation res:Surfing . { ?vr0 dbo:birthPlace res:Australia . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Australia . } }",
+        "uid": 146
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Mount_Everest dbo:firstAscentPerson ?vr0 . }",
+        "goldents": [
+            "res:Mount_Everest",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:firstAscentPerson",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Who was the first to climb Mount Everest ?",
+        "target": "select distinct ?vr0 where { res:Mount_Everest dbo:firstAscentPerson ?vr0 . }",
+        "uid": 234
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Facebook dbo:foundedBy ?vr0 . }",
+        "goldents": [
+            "res:Facebook",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:foundedBy",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Who is the owner of Facebook ?",
+        "target": "select distinct ?vr0 where { res:Facebook dbo:foundedBy ?vr0 . }",
+        "uid": 289
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 dbo:leaderParty res:Social_Democratic_Party_of_Germany . ?vr0 dbp:rulingParty yago:StatesOfGermany . }",
+        "goldents": [
+            "res:Social_Democratic_Party_of_Germany",
+            "yago:StatesOfGermany",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:leaderParty",
+            "dbp:rulingParty",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . ?vr0 predpos@@2 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type entpos@@2 . { ?vr0 predpos@@1 entpos@@1 . } union { ?vr0 predpos@@2 ' [UNK] ' @en . } }",
+        "question": "Which states of Germany are governed by the Social Democratic Party ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type yago:StatesOfGermany . { ?vr0 dbo:leaderParty res:Social_Democratic_Party_of_Germany . } union { ?vr0 dbp:rulingParty ' [UNK] ' @en . } }",
+        "uid": 8
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Building . ?vr0 dbo:architecturalStyle res:English_Gothic_architecture . ?vr0 dbo:location res:Kent . }",
+        "goldents": [
+            "res:English_Gothic_architecture",
+            "res:Kent",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Building",
+            "dbo:architecturalStyle",
+            "dbo:location",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "querytemptar": "select ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "question": "Show me all English Gothic buildings in Kent.",
+        "target": "select ?vr0 where { ?vr0 rdf:type dbo:Building . ?vr0 dbo:architecturalStyle res:English_Gothic_architecture . ?vr0 dbo:location res:Kent . }",
+        "uid": 277
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Australia dbo:largestCity ?vr0 . }",
+        "goldents": [
+            "res:Australia",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:largestCity",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "What is the largest city in Australia ?",
+        "target": "select distinct ?vr0 where { res:Australia dbo:largestCity ?vr0 . }",
+        "uid": 186
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:DartsPlayer . ?vr0 dbo:birthDate ?vr1 . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "goldents": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:DartsPlayer",
+            "dbo:birthDate",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 ?vr1 . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "question": "Who is the youngest Darts player ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:DartsPlayer . ?vr0 dbo:birthDate ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "uid": 210
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Writer . ?vr0 dbo:award res:Nobel_Prize_in_Literature . }",
+        "goldents": [
+            "res:Nobel_Prize_in_Literature",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Writer",
+            "dbo:award",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Give me all writers that won the Nobel Prize in literature.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Writer . ?vr0 dbo:award res:Nobel_Prize_in_Literature . }",
+        "uid": 241
+    },
+    {
+        "answer": "select distinct ?vr0 where { entpos@@1 dbo:parent ?vr0 . }",
+        "goldents": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:parent",
+            "dbo:parent",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "ask where { [UNK] predpos@@1 ?vr0 . [UNK] predpos@@1 ?vr0 . }",
+        "question": "Do Prince Harry and Prince William have the same parents ?",
+        "target": "ask where { [UNK] dbo:parent ?vr0 . [UNK] dbo:parent ?vr0 . }",
+        "uid": 123
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Himalayas dbp:country ?vr0 . }",
+        "goldents": [
+            "res:Himalayas",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbp:country",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "To which countries does the Himalayan mountain system extend ?",
+        "target": "select distinct ?vr0 where { res:Himalayas dbp:country ?vr0 . }",
+        "uid": 108
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Socrates dbo:influencedBy ?vr0 . }",
+        "goldents": [
+            "res:Socrates",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:influencedBy",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . }",
+        "question": "Who was influenced by Socrates ?",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:influencedBy res:Socrates . }",
+        "uid": 291
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:GMT_Games dbo:publisher ?vr0 . }",
+        "goldents": [
+            "res:GMT_Games",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:publisher",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . }",
+        "question": "List all games by GMT.",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:publisher res:GMT_Games . }",
+        "uid": 140
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Person . { ?vr0 dbo:birthDate res:Halloween . } union { ?vr0 dbp:birthDate ?vr1 . ?vr1 dbp:date entpos@@2 . } } }",
+        "goldents": [
+            "res:Halloween",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Person",
+            "dbo:birthDate",
+            "dbp:birthDate",
+            "dbp:date",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } } }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 ?vr1 . } union { ?vr0 predpos@@3 ?vr1 . } entpos@@1 predpos@@4 ?vr1 . }",
+        "question": "Show me everyone who was born on Halloween.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Person . { ?vr0 dbo:birthDate ?vr1 . } union { ?vr0 dbp:birthDate ?vr1 . } res:Halloween dbp:date ?vr1 . }",
+        "uid": 28
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Frank_Herbert dbo:deathDate ?vr0 . }",
+        "goldents": [
+            "res:Frank_Herbert",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:deathDate",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "ask where { optional { entpos@@1 predpos@@1 ?vr0 . } filter ( !bound ( ?vr0 ) ) }",
+        "question": "Is Frank Herbert still alive ?",
+        "target": "ask where { optional { res:Frank_Herbert dbo:deathDate ?vr0 . } filter ( !bound ( ?vr0 ) ) }",
+        "uid": 46
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Airport . ?vr0 dbo:location res:California . ?vr0 dbo:city res:California . }",
+        "goldents": [
+            "res:California",
+            "res:California",
+            "res:California",
+            "res:California"
+        ],
+        "goldrels": [
+            "dbo:Airport",
+            "dbo:location",
+            "dbo:city",
+            "dbo:city",
+            "dbo:isPartOf",
+            "dbo:operator",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@5 entpos@@1 . } union { ?vr0 predpos@@6 entpos@@1 . } }",
+        "question": "Which airports are located in California, USA ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Airport . { ?vr0 dbo:location res:California . } union { ?vr0 dbo:city res:California . } union { ?vr0 dbo:city ?vr1 . ?vr1 dbo:isPartOf res:California . } union { ?vr0 dbo:operator res:California . } }",
+        "uid": 79
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Album . ?vr0 dbo:artist res:Elvis_Presley . ?vr0 dbo:releaseDate entpos@@2 . }",
+        "goldents": [
+            "res:Elvis_Presley",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Album",
+            "dbo:artist",
+            "dbo:releaseDate",
+            "dbo:recordLabel",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr1 rdf:type predpos@@1 . ?vr1 predpos@@2 entpos@@1 . ?vr1 predpos@@3 ?vr2 . ?vr1 predpos@@4 ?vr0 . } order by asc ( ?vr2 ) offset 0 limit 1",
+        "question": "For which label did Elvis record his first album ?",
+        "target": "select distinct ?vr0 where { ?vr1 rdf:type dbo:Album . ?vr1 dbo:artist res:Elvis_Presley . ?vr1 dbo:releaseDate ?vr2 . ?vr1 dbo:recordLabel ?vr0 . } order by asc ( ?vr2 ) offset 0 limit 1",
+        "uid": 199
+    },
+    {
+        "answer": "select distinct ?vr0 where { entpos@@1 dbp:largestmetro ?vr0 . }",
+        "goldents": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbp:largestmetro",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { [UNK] ( state ) > predpos@@1 ?vr0 . }",
+        "question": "What is the largest metropolitan area in Washington state ?",
+        "target": "select distinct ?vr0 where { [UNK] ( state ) > dbp:largestmetro ?vr0 . }",
+        "uid": 296
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Holiday . ?vr0 dbo:country res:Sweden . }",
+        "goldents": [
+            "res:Sweden",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Holiday",
+            "dbo:country",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Give me all Swedish holidays.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Holiday . ?vr0 dbo:country res:Sweden . }",
+        "uid": 2
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Actor . { ?vr0 dbo:birthPlace res:Germany . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Germany . } }",
+        "goldents": [
+            "res:Germany",
+            "res:Germany",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Actor",
+            "dbo:birthPlace",
+            "dbo:birthPlace",
+            "dbo:country",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@2 ?vr1 . ?vr1 predpos@@4 entpos@@1 . } }",
+        "question": "Which actors were born in Germany ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Actor . { ?vr0 dbo:birthPlace res:Germany . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Germany . } }",
+        "uid": 68
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Clint_Eastwood dbo:director ?vr1 . ?vr1 dbo:starring ?vr0 . }",
+        "goldents": [
+            "res:Clint_Eastwood",
+            "res:Clint_Eastwood",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:director",
+            "dbo:starring",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr1 . ?vr1 predpos@@2 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Which films starring Clint Eastwood did he direct himself ?",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:director res:Clint_Eastwood . ?vr0 dbo:starring res:Clint_Eastwood . }",
+        "uid": 188
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:City . ?vr0 dbo:isPartOf res:New_Jersey . ?vr0 dbo:populationTotal ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "goldents": [
+            "res:New_Jersey",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:City",
+            "dbo:isPartOf",
+            "dbo:populationTotal",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 ?vr1 . filter ( ?vr1 > 100000.0 ) . }",
+        "question": "Give me all cities in New Jersey with more than 100000 inhabitants.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:City . ?vr0 dbo:isPartOf res:New_Jersey . ?vr0 dbo:populationTotal ?vr1 . filter ( ?vr1 > 100000.0 ) . }",
+        "uid": 17
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Rotterdam dbo:leaderName ?vr0 . }",
+        "goldents": [
+            "res:Rotterdam",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:leaderName",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Who is the mayor of Rotterdam ?",
+        "target": "select distinct ?vr0 where { res:Rotterdam dbo:leaderName ?vr0 . }",
+        "uid": 41
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:BasketballPlayer . ?vr0 dbo:height ?vr1 . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "goldents": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:BasketballPlayer",
+            "dbo:height",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 ?vr1 . } order by desc ( count ( ?vr1 ) ) offset 0 limit 1",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "question": "Who is the tallest basketball player ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:BasketballPlayer . ?vr0 dbo:height ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "uid": 50
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Abraham_Lincoln dbo:deathPlace ?vr0 . }",
+        "goldents": [
+            "res:Abraham_Lincoln",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:deathPlace",
+            "dbp:website",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "ask where { entpos@@1 predpos@@1 ?vr0 . ?vr0 predpos@@2 ?vr1 . }",
+        "question": "Does Abraham Lincoln's death place have a website ?",
+        "target": "ask where { res:Abraham_Lincoln dbo:deathPlace ?vr0 . ?vr0 dbp:website ?vr1 . }",
+        "uid": 223
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Penguin_Books dbo:founder ?vr0 . }",
+        "goldents": [
+            "res:Penguin_Books",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:founder",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Who is the founder of Penguin Books ?",
+        "target": "select distinct ?vr0 where { res:Penguin_Books dbo:founder ?vr0 . }",
+        "uid": 262
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Mountain . ?vr0 dbo:locatedInArea res:Australia . ?vr0 dbo:elevation entpos@@2 . }",
+        "goldents": [
+            "res:Australia",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Mountain",
+            "dbo:locatedInArea",
+            "dbo:elevation",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "question": "What is the highest mountain in Australia ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Mountain . ?vr0 dbo:locatedInArea res:Australia . ?vr0 dbo:elevation ?vr1 . } order by desc ( ?vr1 ) offset 0 limit 1",
+        "uid": 40
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Prime_Minister_of_Spain dbp:residence ?vr0 . }",
+        "goldents": [
+            "res:Prime_Minister_of_Spain",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbp:residence",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Where is the residence of the prime minister of Spain ?",
+        "target": "select distinct ?vr0 where { res:Prime_Minister_of_Spain dbp:residence ?vr0 . }",
+        "uid": 190
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Intel dbo:foundedBy ?vr0 . }",
+        "goldents": [
+            "res:Intel",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:foundedBy",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Who founded Intel ?",
+        "target": "select distinct ?vr0 where { res:Intel dbo:foundedBy ?vr0 . }",
+        "uid": 141
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Ganges dbo:sourceCountry ?vr0 . }",
+        "goldents": [
+            "res:Ganges",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:sourceCountry",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "In which country does the Ganges start ?",
+        "target": "select distinct ?vr0 where { res:Ganges dbo:sourceCountry ?vr0 . }",
+        "uid": 10
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:War_and_Peace dbo:numberOfPages ?vr0 . }",
+        "goldents": [
+            "res:War_and_Peace",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:numberOfPages",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "How many pages does War and Peace have ?",
+        "target": "select distinct ?vr0 where { res:War_and_Peace dbo:numberOfPages ?vr0 . }",
+        "uid": 212
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Facebook dbo:foundedBy ?vr1 . ?vr1 dbo:foundedBy ?vr0 . }",
+        "goldents": [
+            "res:Facebook",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:foundedBy",
+            "dbo:foundedBy",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr1 . ?vr1 predpos@@2 ?vr0 . }",
+        "querytemptar": "select distinct count ( ?vr0 ) where { entpos@@1 predpos@@1 ?vr1 . ?vr0 predpos@@1 ?vr1 . }",
+        "question": "How many companies were founded by the founder of Facebook ?",
+        "target": "select distinct count ( ?vr0 ) where { res:Facebook dbo:foundedBy ?vr1 . ?vr0 dbo:foundedBy ?vr1 . }",
+        "uid": 22
+    },
+    {
+        "answer": "select distinct ?vr0 where { entpos@@1 dbo:populationTotal ?vr0 . }",
+        "goldents": [
+            "",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:populationTotal",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select ?vr0 where { [UNK] predpos@@1 ?vr0 . }",
+        "question": "What is the total population of Melbourne, Florida ?",
+        "target": "select ?vr0 where { [UNK] dbo:populationTotal ?vr0 . }",
+        "uid": 280
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Pope . ?vr0 dbo:foundedBy res:Vatican_Television_Center . }",
+        "goldents": [
+            "res:Vatican_Television_Center",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Pope",
+            "dbo:foundedBy",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select ?vr0 where { ?vr0 rdf:type predpos@@1 . entpos@@1 predpos@@2 ?vr0 . }",
+        "question": "Who was the pope that founded the Vatican Television ?",
+        "target": "select ?vr0 where { ?vr0 rdf:type dbo:Pope . res:Vatican_Television_Center dbo:foundedBy ?vr0 . }",
+        "uid": 278
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Estonia dbo:spokenIn ?vr0 . }",
+        "goldents": [
+            "res:Estonia",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:spokenIn",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . }",
+        "question": "Which languages are spoken in Estonia ?",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:spokenIn res:Estonia . }",
+        "uid": 72
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Margaret_Thatcher dbo:profession ?vr0 . }",
+        "goldents": [
+            "res:Margaret_Thatcher",
+            "res:Chemist",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:profession",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "ask where { entpos@@1 predpos@@1 entpos@@2 . }",
+        "question": "Was Margaret Thatcher a chemist ?",
+        "target": "ask where { res:Margaret_Thatcher dbo:profession res:Chemist . }",
+        "uid": 178
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Carrot_cake dbo:ingredient ?vr0 . }",
+        "goldents": [
+            "res:Carrot_cake",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:ingredient",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Which ingredients do I need for carrot cake ?",
+        "target": "select distinct ?vr0 where { res:Carrot_cake dbo:ingredient ?vr0 . }",
+        "uid": 213
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:San_Francisco dbp:nickname ?vr0 . }",
+        "goldents": [
+            "res:San_Francisco",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbp:nickname",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "What are the nicknames of San Francisco ?",
+        "target": "select distinct ?vr0 where { res:San_Francisco dbp:nickname ?vr0 . }",
+        "uid": 154
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Company . ?vr0 dbo:industry res:Advertising . }",
+        "goldents": [
+            "res:Advertising",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Company",
+            "dbo:industry",
+            "dbo:industry",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 } union { ?vr0 predpos@@2 ?vr1 . filter regex ( [UNK] ' advertising ' [UNK] ' [UNK] ' ) . } }",
+        "question": "Give me all companies in the advertising industry.",
+        "target": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type dbo:Company . { ?vr0 dbo:industry res:Advertising } union { ?vr0 dbo:industry ?vr1 . filter regex ( [UNK] ' advertising ' [UNK] ' [UNK] ' ) . } }",
+        "uid": 49
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Air_China dbo:headquarter ?vr0 . }",
+        "goldents": [
+            "res:Air_China",
+            "yago:City108524735",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:headquarter",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . ?vr0 rdf:type entpos@@2 . }",
+        "question": "In which city is Air China headquartered ?",
+        "target": "select distinct ?vr0 where { res:Air_China dbo:headquarter ?vr0 . ?vr0 rdf:type yago:City108524735 . }",
+        "uid": 12
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Himalayas dbo:capital ?vr1 . ?vr1 dbp:country ?vr0 . }",
+        "goldents": [
+            "res:Himalayas",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:capital",
+            "dbp:country",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr1 . ?vr1 predpos@@2 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@2 ?vr1 . ?vr1 predpos@@1 ?vr0 . }",
+        "question": "Give me the capitals of all countries that the Himalayas run through.",
+        "target": "select distinct ?vr0 where { res:Himalayas dbp:country ?vr1 . ?vr1 dbo:capital ?vr0 . }",
+        "uid": 233
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Astronaut . ?vr0 dbo:type res:European_Space_Agency . }",
+        "goldents": [
+            "res:European_Space_Agency",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Astronaut",
+            "dbo:type",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Give me all ESA astronauts.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Astronaut . ?vr0 dbo:type res:European_Space_Agency . }",
+        "uid": 1
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Hillel_Slovak dbo:deathPlace ?vr0 . }",
+        "goldents": [
+            "res:Hillel_Slovak",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:deathPlace",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Where did Hillel Slovak die ?",
+        "target": "select distinct ?vr0 where { res:Hillel_Slovak dbo:deathPlace ?vr0 . }",
+        "uid": 298
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Film . ?vr0 dbo:country res:Denmark . }",
+        "goldents": [
+            "res:Denmark",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Film",
+            "dbo:country",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Give me all Danish movies.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Film . ?vr0 dbo:country res:Denmark . }",
+        "uid": 163
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Automobile . ?vr0 dbo:assembly res:Germany . ?vr0 dbo:manufacturer res:Germany . ?vr0 . ?vr0 dbo:manufacturer ?vr1 . ?vr1 dbo:locationCountry res:Germany . }",
+        "goldents": [
+            "res:Germany",
+            "res:Germany",
+            "res:Germany",
+            "res:Germany"
+        ],
+        "goldrels": [
+            "dbo:Automobile",
+            "dbo:assembly",
+            "dbo:manufacturer",
+            "dbo:locationCountry",
+            "dbo:location",
+            "dbp:assembly",
+            "dbp:manufacturer"
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . ?vr0 . ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@6 entpos@@1 . } union { { ?vr0 predpos@@3 ?vr1 . } union { ?vr0 predpos@@7 ?vr1 . } { ?vr1 predpos@@4 entpos@@1 . } union { ?vr1 predpos@@5 entpos@@1 . } } }",
+        "question": "Give me all cars that are produced in Germany.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Automobile . { ?vr0 dbo:assembly res:Germany . } union { ?vr0 dbp:assembly res:Germany . } union { { ?vr0 dbo:manufacturer ?vr1 . } union { ?vr0 dbp:manufacturer ?vr1 . } { ?vr1 dbo:locationCountry res:Germany . } union { ?vr1 dbo:location res:Germany . } } }",
+        "uid": 117
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 dbo:occupation res:Skateboarding . { ?vr0 dbo:birthPlace res:Sweden . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Sweden . } }",
+        "goldents": [
+            "res:Skateboarding",
+            "res:Sweden",
+            "res:Sweden",
+            ""
+        ],
+        "goldrels": [
+            "dbo:occupation",
+            "dbo:birthPlace",
+            "dbo:birthPlace",
+            "dbo:country",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . { ?vr0 predpos@@2 entpos@@2 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 predpos@@1 entpos@@1 . { ?vr0 predpos@@2 entpos@@2 . } union { ?vr0 predpos@@2 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } }",
+        "question": "Give me all professional skateboarders from Sweden.",
+        "target": "select distinct ?vr0 where { ?vr0 dbo:occupation res:Skateboarding . { ?vr0 dbo:birthPlace res:Sweden . } union { ?vr0 dbo:birthPlace ?vr1 . ?vr1 dbo:country res:Sweden . } }",
+        "uid": 106
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:TelevisionShow . ?vr0 dbo:starring res:Neil_Patrick_Harris . }",
+        "goldents": [
+            "res:Neil_Patrick_Harris",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:TelevisionShow",
+            "dbo:starring",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "Give me all the TV shows with Neil Patrick Harris.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:TelevisionShow . ?vr0 dbo:starring res:Neil_Patrick_Harris . }",
+        "uid": 258
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:SoccerClub . ?vr0 dbo:ground res:Spain . }",
+        "goldents": [
+            "res:Spain",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:SoccerClub",
+            "dbo:ground",
+            "dbp:ground",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . filter ( regex ( [UNK] ' [UNK] ' ) ) } }",
+        "question": "Give me all soccer clubs in Spain.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:SoccerClub . { ?vr0 dbo:ground res:Spain . } union { ?vr0 dbp:ground ?vr1 . filter ( regex ( [UNK] ' [UNK] ' ) ) } }",
+        "uid": 41
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Musical . ?vr0 dbo:musicBy res:Elton_John . }",
+        "goldents": [
+            "res:Elton_John",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Musical",
+            "dbo:musicBy",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "question": "List all the musicals with music by Elton John.",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Musical . ?vr0 dbo:musicBy res:Elton_John . }",
+        "uid": 265
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Che_Guevara dbo:child ?vr0 . }",
+        "goldents": [
+            "res:Che_Guevara",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:child",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "ask where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "Did Che Guevara have children ?",
+        "target": "ask where { res:Che_Guevara dbo:child ?vr0 . }",
+        "uid": 264
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:UNC_Health_Care dbp:speciality ?vr0 . }",
+        "goldents": [
+            "res:UNC_Health_Care",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbp:speciality",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "What are the specialities of the UNC Health Care ?",
+        "target": "select distinct ?vr0 where { res:UNC_Health_Care dbp:speciality ?vr0 . }",
+        "uid": 288
+    },
+    {
+        "answer": "select distinct ?vr0 where { res:Mount_Everest dbo:elevation ?vr0 . }",
+        "goldents": [
+            "res:Mount_Everest",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:elevation",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr0 . }",
+        "question": "How high is the Mount Everest ?",
+        "target": "select distinct ?vr0 where { res:Mount_Everest dbo:elevation ?vr0 . }",
+        "uid": 183
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:architect . ?vr0 dbp:almaMater res:Eiffel_Tower . }",
+        "goldents": [
+            "res:Eiffel_Tower",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:architect",
+            "dbp:almaMater",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select distinct ?vr0 where { entpos@@1 predpos@@1 ?vr1 . ?vr1 predpos@@2 ?vr0 . }",
+        "question": "Where did the architect of the Eiffel Tower study ?",
+        "target": "select distinct ?vr0 where { res:Eiffel_Tower dbo:architect ?vr1 . ?vr1 dbp:almaMater ?vr0 . }",
+        "uid": 38
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:City . { ?vr0 dbo:Town res:Germany . } union { ?vr0 dbo:country ?vr1 . } union { ?vr0 . } } } }",
+        "goldents": [
+            "res:Germany",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:City",
+            "dbo:Town",
+            "dbo:country",
+            "dbo:populationTotal",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . } union { ?vr0 . } } } }",
+        "querytemptar": "select distinct ?vr0 where { { ?vr0 rdf:type predpos@@1 . } union { ?vr0 rdf:type predpos@@2 . } ?vr0 predpos@@3 entpos@@1 . ?vr0 predpos@@4 ?vr1 . filter ( ?vr1 > 250000.0 ) }",
+        "question": "Which German cities have more than 250000 inhabitants ?",
+        "target": "select distinct ?vr0 where { { ?vr0 rdf:type dbo:City . } union { ?vr0 rdf:type dbo:Town . } ?vr0 dbo:country res:Germany . ?vr0 dbo:populationTotal ?vr1 . filter ( ?vr1 > 250000.0 ) }",
+        "uid": 101
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:ProgrammingLanguage . { ?vr0 dbo:influencedBy res:Perl . } union { ?vr0 dbo:influenced ?vr1 . } filter ( regex ( ?vr2 ) }",
+        "goldents": [
+            "res:Perl",
+            "res:Perl",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:ProgrammingLanguage",
+            "dbo:influencedBy",
+            "dbo:influenced",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . } filter ( regex ( ?vr2 ) }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { entpos@@1 predpos@@3 ?vr0 . } }",
+        "question": "Which programming languages were influenced by Perl ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:ProgrammingLanguage . { ?vr0 dbo:influencedBy res:Perl . } union { res:Perl dbo:influenced ?vr0 . } }",
+        "uid": 7
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:River . { ?vr0 dbo:inflow res:Germany . } union { ?vr0 dbo:Lake ?vr1 . ?vr1 dbo:country entpos@@2 . } } }",
+        "goldents": [
+            "res:Germany",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:River",
+            "dbo:inflow",
+            "dbo:Lake",
+            "dbo:country",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . { ?vr0 predpos@@2 entpos@@1 . } union { ?vr0 predpos@@3 ?vr1 . ?vr1 predpos@@4 entpos@@2 . } } }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr1 predpos@@2 ?vr0 . ?vr1 rdf:type predpos@@3 . ?vr1 predpos@@4 entpos@@1 . }",
+        "question": "Which rivers flow into a German lake ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:River . ?vr1 dbo:inflow ?vr0 . ?vr1 rdf:type dbo:Lake . ?vr1 dbo:country res:Germany . }",
+        "uid": 208
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Language . ?vr0 dbo:language res:Colombia . }",
+        "goldents": [
+            "res:Colombia",
+            "",
+            "",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Language",
+            "dbo:language",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . }",
+        "querytemptar": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type predpos@@1 . entpos@@1 predpos@@2 ?vr0 . }",
+        "question": "How many languages are spoken in Colombia ?",
+        "target": "select count ( distinct ?vr0 ) where { ?vr0 rdf:type dbo:Language . res:Colombia dbo:language ?vr0 . }",
+        "uid": 202
+    },
+    {
+        "answer": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Person . ?vr0 dbo:weight res:Chicago_Bulls . ?vr0 dbo:draftTeam res:Chicago_Bulls . }",
+        "goldents": [
+            "res:Chicago_Bulls",
+            "res:Chicago_Bulls",
+            "res:Chicago_Bulls",
+            ""
+        ],
+        "goldrels": [
+            "dbo:Person",
+            "dbo:weight",
+            "dbo:draftTeam",
+            "dbp:team",
+            "dbp:draftTeam",
+            "",
+            ""
+        ],
+        "querytempans": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 entpos@@1 . ?vr0 predpos@@3 entpos@@2 . }",
+        "querytemptar": "select distinct ?vr0 where { ?vr0 rdf:type predpos@@1 . ?vr0 predpos@@2 ?vr1 . { ?vr0 predpos@@4 entpos@@1 . } union { ?vr0 predpos@@5 entpos@@1 . } union { ?vr0 predpos@@3 entpos@@1 . } } order by desc ( ?vr1 ) offset 0 limit 1",
+        "question": "Who is the heaviest player of the Chicago Bulls ?",
+        "target": "select distinct ?vr0 where { ?vr0 rdf:type dbo:Person . ?vr0 dbo:weight ?vr1 . { ?vr0 dbp:team res:Chicago_Bulls . } union { ?vr0 dbp:draftTeam res:Chicago_Bulls . } union { ?vr0 dbo:draftTeam res:Chicago_Bulls . } } order by desc ( ?vr1 ) offset 0 limit 1",
+        "uid": 48
+    }
+]

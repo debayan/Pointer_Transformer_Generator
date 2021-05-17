@@ -7,8 +7,8 @@ import json
 import sys
 
 tf.app.flags.DEFINE_integer("batch_size", 20,"Batch size.")
-tf.app.flags.DEFINE_integer("max_input_sequence_len", 100, "Maximum input sequence length.")
-tf.app.flags.DEFINE_integer("max_output_sequence_len", 100, "Maximum output sequence length.")
+tf.app.flags.DEFINE_integer("max_input_sequence_len", 200, "Maximum input sequence length.")
+tf.app.flags.DEFINE_integer("max_output_sequence_len", 200, "Maximum output sequence length.")
 tf.app.flags.DEFINE_integer("rnn_size", 32, "RNN unit size.")
 tf.app.flags.DEFINE_integer("attention_size", 100, "Attention size.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers.")
