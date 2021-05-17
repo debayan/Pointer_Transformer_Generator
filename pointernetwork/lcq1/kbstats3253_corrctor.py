@@ -120,11 +120,11 @@ def start(filename, modelnum):
         print("replaced: ",answer)
         resulttarget = hitkg(target,'target')
         resultanswer = hitkg(answer,'answer')
-        wans_ = item['question'].split(' ')[0] + ' ' + ans_
+        #wans_ = item['question'].split(' ')[0] + ' ' + ans_
         if empty(resultanswer):
             print("no answer")
-            print("sending to corrector: ",wans_)
-            for query in ch.correct(wans_):
+            print("sending to corrector: ",ans_)
+            for query in ch.correct(ans_):
                 print("alternatequery: ", query)
                 q = replace(query,ents,rels)
                 print("replaces: ",q)

@@ -10,7 +10,7 @@ tf.app.flags.DEFINE_integer("batch_size1", 20,"Batch size.")
 tf.app.flags.DEFINE_integer("max_input_sequence_len1", 100, "Maximum input sequence length.")
 tf.app.flags.DEFINE_integer("max_output_sequence_len1", 100, "Maximum output sequence length.")
 tf.app.flags.DEFINE_integer("rnn_size1", 32, "RNN unit size.")
-tf.app.flags.DEFINE_integer("attention_size1", 50, "Attention size.")
+tf.app.flags.DEFINE_integer("attention_size1", 100, "Attention size.")
 tf.app.flags.DEFINE_integer("num_layers1", 1, "Number of layers.")
 tf.app.flags.DEFINE_integer("beam_width1", 10, "Width of beam search .")
 tf.app.flags.DEFINE_float("learning_rate1", 0.001, "Learning rate.")
@@ -36,8 +36,8 @@ class ConvexHull(object):
     self.build_model()
     #self.read_data()
     #self.test_read_data()
-    self.id2word = json.loads(open('id2word_lcq13253_w_'+modelnum+'.txt').read())
-    self.word2id = json.loads(open('word2id_lcq13253_w_'+modelnum+'.txt').read())
+    self.id2word = json.loads(open('id2word_lcq13253_'+modelnum+'.txt').read())
+    self.word2id = json.loads(open('word2id_lcq13253_'+modelnum+'.txt').read())
     
 
   def vectorise(self,tokenids):
